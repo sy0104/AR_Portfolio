@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 #include "PlayerAnimInstance.h"
+#include "../PFGameInstance.h"
 #include "../Manager/InventoryManager.h"
 #include "../PFGameModeBase.h"
 #include "../UMG/MainHUDBase.h"
@@ -138,6 +139,31 @@ void APlayerCharacter::BeginPlay()
 		mPlayerInfo.Gold = 1000;
 		mPlayerInfo.MoveSpeed = 2000.f;
 		mPlayerInfo.AttackDistance = 200.f;
+	}
+
+
+	// Skill
+	int32 SkillCount = mSkillNameArray.Num();
+
+	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+
+	for (int32 i = 0; i < SkillCount; ++i)
+	{
+		const FSkillData* Data = GameInst->FindPlayerSkillTable(mSkillNameArray[i]);
+
+		FPlayerSkillInfo SkillInfo;
+
+		SkillInfo.Type = Data->Type;
+		SkillInfo.System = Data->System;
+		SkillInfo.SkillName = Data->SkillName;
+		//SkillInfo.Description = Data->Description;
+		SkillInfo.SkillOptionArray = Data->SkillOptionArray;
+
+		//SkillInfo.Duration = 0.f;
+		SkillInfo.Distance = Data->Distance;
+		SkillInfo.MP = Data->MP;
+
+		mSkillDataArray.Add(SkillInfo);
 	}
 }
 
@@ -381,10 +407,10 @@ void APlayerCharacter::SkillFKey()
 
 void APlayerCharacter::SkillRMKey()
 {
-	//if (mDeath || mTargeting)
-	//	return;
+	if (mDeath || mTargeting)
+		return;
 
-	//mAnimInst->UseSkill(3);
+	mAnimInst->UseSkill(3);
 }
 
 void APlayerCharacter::JumpKey()

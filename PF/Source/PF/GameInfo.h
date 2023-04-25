@@ -287,17 +287,20 @@ struct FSkillData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<FSkillOption>		SkillOptionArray;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<FSkillEffectData>		SkillEffectArray;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//TArray<FSkillEffectData>		SkillEffectArray;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<FSkillUseData>			SkillUseDataArray;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//TArray<FSkillUseData>			SkillUseDataArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	float			Distance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	EMonsterAnimType		AnimType;
+	int32			MP;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//EMonsterAnimType		AnimType;
 };
 
 USTRUCT(BlueprintType)
@@ -321,11 +324,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<FSkillOption>	SkillOptionArray;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<FSkillEffectData>	SkillEffectArray;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//TArray<FSkillEffectData>	SkillEffectArray;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	TArray<FSkillUseData>	SkillUseDataArray;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//TArray<FSkillUseData>	SkillUseDataArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	bool	UseSkill;
@@ -339,9 +342,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	float	Distance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	EMonsterAnimType	AnimType;
-
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	//EMonsterAnimType	AnimType;
 };
 
 USTRUCT(BlueprintType)
@@ -351,19 +353,28 @@ struct FPlayerSkillInfo
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FName					Name;
+	ESkillType			Type;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	int32					AttackPoint;
+	ESkillSystem		System;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	ESkillType				SkillType;
+	FString				SkillName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	ESkillSystem			SkillSystem;
+	FString				Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	ESkillOptionType		SkillOptionType;
+	TArray<FSkillOption>	SkillOptionArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	float			Duration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	float			Distance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	int32			MP;
 };
 
 USTRUCT(BlueprintType)

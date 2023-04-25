@@ -26,12 +26,19 @@ UPFGameInstance::UPFGameInstance()
 	if (MonsterTable.Succeeded())
 		mMonsterTable = MonsterTable.Object;
 
-	// Monster Skill Table
-	static ConstructorHelpers::FObjectFinder<UDataTable> SkillfInfoTable(
-		TEXT("DataTable'/Game/Skill/DTMonsterSkill.DTMonsterSkill'"));
-	
-	if (SkillfInfoTable.Succeeded())
-		mMonsterSkillInfoTable = SkillfInfoTable.Object;
+	//// Monster Skill Table
+	//static ConstructorHelpers::FObjectFinder<UDataTable> SkillfInfoTable(
+	//	TEXT("DataTable'/Game/Skill/DTMonsterSkill.DTMonsterSkill'"));
+	//
+	//if (SkillfInfoTable.Succeeded())
+	//	mMonsterSkillInfoTable = SkillfInfoTable.Object;
+
+	// Player Skill Table
+	static ConstructorHelpers::FObjectFinder<UDataTable> PlayerSkillfInfoTable(
+		TEXT("DataTable'/Game/Skill/DTPlayerSkill.DTPlayerSkill'"));
+
+	if (PlayerSkillfInfoTable.Succeeded())
+		mPlayerSkillInfoTable = PlayerSkillfInfoTable.Object;
 }
 
 UPFGameInstance::~UPFGameInstance()
@@ -51,4 +58,9 @@ const FMonsterTableInfo* UPFGameInstance::FindMonsterTable(const FName& Name)
 const FSkillData* UPFGameInstance::FindMonsterSkillTable(const FName& Name)
 {
 	return mMonsterSkillInfoTable->FindRow<FSkillData>(Name, TEXT(""));
+}
+
+const FSkillData* UPFGameInstance::FindPlayerSkillTable(const FName& Name)
+{
+	return mPlayerSkillInfoTable->FindRow<FSkillData>(Name, TEXT(""));
 }

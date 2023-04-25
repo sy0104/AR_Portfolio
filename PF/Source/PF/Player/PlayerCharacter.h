@@ -103,8 +103,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))
 	UCameraComponent*		mCamera;
 
+	// Skill
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))
-	TArray<FSkillInfo>		mSkillInfoArray;
+	TArray<FName>				mSkillNameArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))
+	TArray<FPlayerSkillInfo>	mSkillDataArray;
 
 	// Camera Shake
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))

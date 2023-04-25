@@ -32,6 +32,12 @@ ACountess::ACountess()
 	mReturnEnable = false;
 	mReturnTime = 2.f;
 	mCurTime = 0.f;
+
+	// Skill
+	mSkillNameArray.Add(TEXT("CountessSkillQ"));
+	mSkillNameArray.Add(TEXT("CountessSkillE"));
+	mSkillNameArray.Add(TEXT("CountessSkillR"));
+	mSkillNameArray.Add(TEXT("CountessSkillRM"));
 }
 
 void ACountess::BeginPlay()
@@ -82,21 +88,6 @@ void ACountess::NormalAttackCheck()
 
 	FCollisionQueryParams param(NAME_None, false, this);
 
-	//// Test
-	//FActorSpawnParameters SpawnParam;
-	//SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	//FRotator Rotation = GetActorRotation();
-	//Rotation.Roll = 90.f;
-
-	//AParticleCascade* TestParticle =
-	//	GetWorld()->SpawnActor<AParticleCascade>(
-	//		GetActorLocation(), Rotation, SpawnParam);
-
-	//TestParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
-
-
-
 	TArray<FHitResult> CollisionResult;
 	bool CollisionEnable = GetWorld()->SweepMultiByChannel(CollisionResult,
 		StartLocation, EndLocation,
@@ -132,7 +123,6 @@ void ACountess::NormalAttackCheck()
 				FDamageEvent(), GetController(), this);
 		}
 	}
-
 }
 
 void ACountess::UseSkill(int32 SkillNumber)
@@ -158,8 +148,6 @@ void ACountess::UseSkill(int32 SkillNumber)
 
 void ACountess::SkillQ()
 {
-	mPlayerInfo.AttackDistance = 200.f;
-
 	SetHidden(false);
 
 	mReturnEnable = true;
@@ -182,6 +170,12 @@ void ACountess::SkillQ()
 
 
 	// Skill
+	int32 SkillNum = (int32)ECountessSkillType::BlinkStrike;
+	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
+
+	// ¸¶³ª
+
+
 	FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
 	FVector EndLocation = StartLocation + GetActorForwardVector() * mPlayerInfo.AttackDistance;
 
@@ -208,9 +202,6 @@ void ACountess::SkillQ()
 
 		for (int32 i = 0; i < Count; ++i)
 		{
-			//FActorSpawnParameters SpawnParam;
-			//SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 			AParticleCascade* ImpactParticle =
 				GetWorld()->SpawnActor<AParticleCascade>(
 					CollisionResult[i].ImpactPoint,
@@ -218,7 +209,16 @@ void ACountess::SkillQ()
 
 			ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_BlinkStrike_HitFX.P_Countess_BlinkStrike_HitFX'"));
 
-			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint,
+			int32 OptionCount = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+			float DamageRatio = 0.f;
+
+			for (int32 j = 0; j < OptionCount; ++j)
+			{
+				if (mSkillDataArray[SkillNum].SkillOptionArray[j].Type == ESkillOptionType::Damage)
+					DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
+			}
+
+			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint * DamageRatio,
 				FDamageEvent(), GetController(), this);
 		}
 	}
@@ -226,8 +226,6 @@ void ACountess::SkillQ()
 
 void ACountess::SkillE()
 {
-	mPlayerInfo.AttackDistance = 200.f;
-
 	// Effect
 	FActorSpawnParameters SpawnParam;
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -242,14 +240,12 @@ void ACountess::SkillE()
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_SegmentFX.p_RollingDark_SegmentFX'"));
 
 	// Skill
+	int32 SkillNum = (int32)ECountessSkillType::RollingDark;
+	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
+
 	ASkillProjectile* Skill =
 		GetWorld()->SpawnActor<ASkillProjectile>(
 			GetActorLocation() + GetActorForwardVector() * 50.f, Rotation, SpawnParam);
-
-	//// Skill
-	//ASkillProjectile* Skill =
-	//	GetWorld()->SpawnActor<ASkillProjectile>(
-	//		GetActorLocation() + GetActorForwardVector() * 50.f, GetActorRotation(), SpawnParam);
 
 	Skill->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
 	Skill->SetCollisionProfile(TEXT("PlayerAttack"));
@@ -261,8 +257,6 @@ void ACountess::SkillE()
 
 void ACountess::SkillR()
 {
-	mPlayerInfo.AttackDistance = 500.f;
-
 	CustomTimeDilation = 2.5f;
 	PlayUltimateCameraShake();
 	SetCameraZoom(false, 10.f, false, 500.f, 700.f);
@@ -284,7 +278,10 @@ void ACountess::SkillR()
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUlt_CastFX.p_CountessUlt_CastFX'"));
 
 
-	// Collision
+	// Skill
+	int32 SkillNum = (int32)ECountessSkillType::Ultimate;
+	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
+
 	FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
 	FVector EndLocation = StartLocation + GetActorForwardVector() * mPlayerInfo.AttackDistance;
 
@@ -318,7 +315,16 @@ void ACountess::SkillR()
 
 			ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUltImpact.p_CountessUltImpact'"));
 
-			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint,
+			int32 OptionCount = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+			float DamageRatio = 0.f;
+
+			for (int32 j = 0; j < OptionCount; ++j)
+			{
+				if (mSkillDataArray[SkillNum].SkillOptionArray[j].Type == ESkillOptionType::Damage)
+					DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
+			}
+
+			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint * DamageRatio,
 				FDamageEvent(), GetController(), this);
 		}
 	}
@@ -327,9 +333,10 @@ void ACountess::SkillR()
 
 void ACountess::SkillRM()
 {
-	mPlayerInfo.AttackDistance = 350.f;
+	// SKill
+	int32 SkillNum = (int32)ECountessSkillType::Ultimate;
+	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
 
-	// Collision
 	FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
 	FVector EndLocation = StartLocation + GetActorForwardVector() * mPlayerInfo.AttackDistance;
 
@@ -352,6 +359,8 @@ void ACountess::SkillRM()
 			DrawColor, false, 0.5f);
 #endif
 
+
+
 	if (CollisionEnable)
 	{
 		int32 Count = CollisionResult.Num();
@@ -369,8 +378,16 @@ void ACountess::SkillRM()
 
 			ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BladeSiphon/FX/p_Countess_BladeSiphon_HitFX.p_Countess_BladeSiphon_HitFX'"));
 
-			CollisionResult[i].GetActor()->TakeDamage(
-				(float)mPlayerInfo.AttackPoint,
+			int32 OptionCount = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+			float DamageRatio = 0.f;
+
+			for (int32 j = 0; j < OptionCount; ++j)
+			{
+				if (mSkillDataArray[SkillNum].SkillOptionArray[j].Type == ESkillOptionType::Damage)
+					DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
+			}
+
+			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint * DamageRatio,
 				FDamageEvent(), GetController(), this);
 		}
 	}

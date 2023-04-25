@@ -28,9 +28,12 @@ private:
 	UDataTable*			mItemTable;
 	UDataTable*			mMonsterTable;
 	UDataTable*			mMonsterSkillInfoTable;
+	UDataTable*			mPlayerSkillInfoTable;
+
 	UInventoryManager*	mInventory;
 
 public:
 	const FMonsterTableInfo* FindMonsterTable(const FName& Name);
 	const FSkillData* FindMonsterSkillTable(const FName& Name);
+	const FSkillData* FindPlayerSkillTable(const FName& Name);
 };
