@@ -36,8 +36,6 @@ public:
 	UDataTable*				mItemTable;
 	TMap<EItemID, FName>	mRowNameFromID;				// 아이템 데이터 가져오는 용도(아이템테이블)
 
-
-
 	int32					mPrevTime;
 
 public:
@@ -46,4 +44,5 @@ public:
 public:
 	void SetItemTable(UDataTable* Table);
 	void AddItem(FItemDataInfo* Item);
+	void SaveInventory();
 };

@@ -9,6 +9,8 @@
 #include "../UMG/InventoryBase.h"
 #include "../UMG/InventoryItemBase.h"
 #include "../UMG/ItemDataBase.h"
+#include "../PFSaveGame.h"
+#include "../PFGameModeBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -39,6 +41,12 @@ APlayerCharacter::APlayerCharacter()
 	mCameraZoomMin = 100.f;
 	mCameraZoomMax = 500.f;
 
+	mCameraZoom = false;
+	mCameraZoomSpeed = 10.f;
+	mCameraZoomIn = false;
+	mSkillCameraZoomMin = 200.f;
+	mSkillCameraZoomMax = 500.f;
+
 	mHPRatio = 1.f;
 	mMPRatio = 1.f;
 	mExpRatio = 0.f;
@@ -50,6 +58,28 @@ APlayerCharacter::APlayerCharacter()
 	mArmorBuff.bBuffOn = false;
 	mArmorBuff.CurBuffTime = 0.f;
 	mArmorBuff.BuffTime = 10.f;
+
+	// Camera Shake BPC
+	// Damage
+	static ConstructorHelpers::FClassFinder<UCameraShakeBase> DamageCameraShakeBPC(
+		TEXT("Blueprint'/Game/Blueprints/Camera/BPC_DamageCameraShake.BPC_DamageCameraShake_C'"));
+
+	if (DamageCameraShakeBPC.Succeeded())
+		mDamageCameraShake = DamageCameraShakeBPC.Class;
+
+	// Skill
+	static ConstructorHelpers::FClassFinder<UCameraShakeBase> SkillCameraShakeBPC(
+		TEXT("Blueprint'/Game/Blueprints/Camera/BPC_SkillCameraShake.BPC_SkillCameraShake_C'"));
+
+	if (SkillCameraShakeBPC.Succeeded())
+		mSkillCameraShake = SkillCameraShakeBPC.Class;
+
+	// Ultimate
+	static ConstructorHelpers::FClassFinder<UCameraShakeBase> UltimateCameraShakeBPC(
+		TEXT("Blueprint'/Game/Blueprints/Camera/BPC_UltimateCameraShake.BPC_UltimateCameraShake_C'"));
+
+	if (UltimateCameraShakeBPC.Succeeded())
+		mUltimateCameraShake = UltimateCameraShakeBPC.Class;
 }
 
 void APlayerCharacter::BeginPlay()
@@ -59,6 +89,65 @@ void APlayerCharacter::BeginPlay()
 	mAnimInst = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	UInventoryManager::GetInst(GetWorld())->ShowInventory(false);
+
+	// Read
+	FString FullPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/Save.txt");
+	TSharedPtr<FArchive> Reader = MakeShareable(
+		IFileManager::Get().CreateFileReader(*FullPath));
+
+	if (Reader.IsValid())
+	{
+		*Reader.Get() << mPlayerInfo.Name;
+		*Reader.Get() << mPlayerInfo.AttackPoint;
+		*Reader.Get() << mPlayerInfo.ArmorPoint;
+		*Reader.Get() << mPlayerInfo.HP;
+		*Reader.Get() << mPlayerInfo.HPMax;
+		*Reader.Get() << mPlayerInfo.MP;
+		*Reader.Get() << mPlayerInfo.MPMax;
+		*Reader.Get() << mPlayerInfo.Level;
+		*Reader.Get() << mPlayerInfo.Exp;
+		*Reader.Get() << mPlayerInfo.Gold;
+		*Reader.Get() << mPlayerInfo.MoveSpeed;
+		*Reader.Get() << mPlayerInfo.AttackDistance;
+
+		*Reader.Get() << mCameraZoomMin;
+		*Reader.Get() << mCameraZoomMax;
+
+		*Reader.Get() << mEquipedItem.Weapon;
+		*Reader.Get() << mEquipedItem.Armor;
+		*Reader.Get() << mEquipedItem.Accesary;
+
+		*Reader.Get() << mHPRatio;
+		*Reader.Get() << mMPRatio;
+		*Reader.Get() << mExpRatio;
+	}
+
+	// 나중에 직업 추가되면 데이터테이블로 제작
+	else
+	{
+		mPlayerInfo.Name = TEXT("Shinbi");
+		mPlayerInfo.AttackPoint = 200;	// 100
+		mPlayerInfo.ArmorPoint = 50;
+		mPlayerInfo.HP = 1000;
+		mPlayerInfo.HPMax = 1000;
+		mPlayerInfo.MP = 100;
+		mPlayerInfo.MPMax = 100;
+		mPlayerInfo.Level = 1;
+		mPlayerInfo.Exp = 0;
+		mPlayerInfo.ExpMax = 1000;
+		mPlayerInfo.Gold = 1000;
+		mPlayerInfo.MoveSpeed = 2000.f;
+		mPlayerInfo.AttackDistance = 200.f;
+	}
+}
+
+void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	SavePlayer();
+
+	PrintViewport(1.f, FColor::Red, TEXT("Player::EndPlay"));
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -69,6 +158,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	AttackBuffOn(DeltaTime);
 	ArmorBuffOn(DeltaTime);
+
+	CameraZoomInOut();
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -79,7 +170,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("NormalAttack"), EInputEvent::IE_Pressed, this, &APlayerCharacter::NormalAttack);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillQ"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SkillQKey);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillE"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SkillEKey);
-	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillR"), EInputEvent::IE_Released, this, &APlayerCharacter::SkillRKey);
+	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillR"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SkillRKey);
+	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillRM"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SkillRMKey);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::JumpKey);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("SkillF"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SkillFKey);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Inventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::InventoryOn);
@@ -103,6 +195,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	AController* EventInstigator, AActor* DamageCauser)
 {
+	if (mUseSkill)
+		return 0.f;
+
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), mDamageCameraShake, GetActorLocation(), 100.f, 2000.f, 1.f, false);
+
 	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	Damage = Damage - mPlayerInfo.ArmorPoint;
@@ -134,6 +231,12 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 
 	return Damage;
+}
+
+void APlayerCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
 }
 
 void APlayerCharacter::MoveFront(float Scale)
@@ -244,26 +347,26 @@ void APlayerCharacter::NormalAttack()
 
 void APlayerCharacter::SkillQKey()
 {
-	if (mDeath || mTargeting)
-		return;
+	//if (mDeath || mTargeting)
+	//	return;
 
-	mAnimInst->UseSkill(0);
+	//mAnimInst->UseSkill(0);
 }
 
 void APlayerCharacter::SkillEKey()
 {
-	if (mDeath || mTargeting)
-		return;
+	//if (mDeath || mTargeting)
+	//	return;
 
-	mAnimInst->UseSkill(1);
+	//mAnimInst->UseSkill(1);
 }
 
 void APlayerCharacter::SkillRKey()
 {
-	if (mDeath)
-		return;
+	//if (mDeath)
+	//	return;
 
-	mAnimInst->UseSkill(2);
+	//mAnimInst->UseSkill(2);
 }
 
 void APlayerCharacter::SkillFKey()
@@ -273,7 +376,15 @@ void APlayerCharacter::SkillFKey()
 
 	PrintViewport(1.f, FColor::Red, TEXT("SkillFKey()"));
 
-	mAnimInst->UseSkill(3);
+	//mAnimInst->UseSkill(3);
+}
+
+void APlayerCharacter::SkillRMKey()
+{
+	//if (mDeath || mTargeting)
+	//	return;
+
+	//mAnimInst->UseSkill(3);
 }
 
 void APlayerCharacter::JumpKey()
@@ -331,7 +442,8 @@ void APlayerCharacter::ItemKey()
 
 void APlayerCharacter::HPPotionkey()
 {
-	FItemDataInfo* Item = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
+	FItemDataInfo* Item = UInventoryManager::GetInst(
+		GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
 
 	if (Item->ItemCount <= 0)
 		return;
@@ -359,7 +471,6 @@ void APlayerCharacter::AttackPotionKey()
 
 	UsePotion(Item);
 	SetPotionInfo(Item);
-
 }
 
 void APlayerCharacter::ArmorPotionKey()
@@ -392,7 +503,19 @@ void APlayerCharacter::SkillR()
 {
 }
 
+void APlayerCharacter::SkillRM()
+{
+}
+
 void APlayerCharacter::SkillF()
+{
+}
+
+void APlayerCharacter::SkillRCast()
+{
+}
+
+void APlayerCharacter::SkillRMCast()
 {
 }
 
@@ -423,6 +546,7 @@ void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 	{
 	case EItemID::PT_HP_Potion:
 		mPlayerInfo.HP += ItemInfo->HPHeal;
+
 		if (mPlayerInfo.HP >= mPlayerInfo.HPMax)
 			mPlayerInfo.HP = mPlayerInfo.HPMax;
 
@@ -460,6 +584,29 @@ void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 
 void APlayerCharacter::InitUI()
 {
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	if (IsValid(MainHUD))
+	{
+		// Player Info UI
+		MainHUD->SetHP(mHPRatio);
+		MainHUD->SetMP(mMPRatio);
+		MainHUD->SetExp(mExpRatio);
+		MainHUD->SetLevel(mPlayerInfo.Level);
+		MainHUD->SetGold(mPlayerInfo.Gold);
+
+		// Player Stat UI
+		MainHUD->SetPlayerStatUI(mPlayerInfo);
+		MainHUD->SetPlayerStatVisible(false);
+
+		// Potion Info UI
+		MainHUD->SetHPPotionCount(0);
+		MainHUD->SetMPPotionCount(0);
+		MainHUD->SetAttackPotionCount(0);
+		MainHUD->SetArmorPotionCount(0);
+	}
+
 }
 
 void APlayerCharacter::SetPotionInfo(FItemDataInfo* ItemInfo)
@@ -513,6 +660,82 @@ void APlayerCharacter::SetPotionInfo(FItemDataInfo* ItemInfo)
 	MainHUD->UpdatePotionCount(ItemInfo->ID);
 }
 
+void APlayerCharacter::SavePlayer()
+{
+	UPFSaveGame* SaveGame = NewObject<UPFSaveGame>();
+
+	SaveGame->mPlayerInfo = mPlayerInfo;
+	SaveGame->mCameraZoomMin = mCameraZoomMin;
+	SaveGame->mCameraZoomMax = mCameraZoomMax;
+	SaveGame->mEquipedItem = mEquipedItem;
+	SaveGame->mHPRatio = mHPRatio;
+	SaveGame->mMPRatio = mMPRatio;
+	SaveGame->mExpRatio = mExpRatio;
+
+	UInventoryBase* InventoryBase = NewObject<UInventoryBase>();
+	UTileView* TileView = InventoryBase->GetTileView();
+
+	if (IsValid(TileView))
+	{
+
+	}
+
+	UGameplayStatics::SaveGameToSlot(SaveGame, TEXT("Save"), 0);
+
+	APFGameModeBase* GameMode = GetWorld()->GetAuthGameMode<APFGameModeBase>();
+
+	GameMode->GetSaveGame()->mPlayerInfo = mPlayerInfo;
+	GameMode->GetSaveGame()->mCameraZoomMin = mCameraZoomMin;
+	GameMode->GetSaveGame()->mCameraZoomMax = mCameraZoomMax;
+	GameMode->GetSaveGame()->mEquipedItem = mEquipedItem;
+	GameMode->GetSaveGame()->mHPRatio = mHPRatio;
+	GameMode->GetSaveGame()->mMPRatio = mMPRatio;
+	GameMode->GetSaveGame()->mExpRatio = mExpRatio;
+
+	if (IsValid(TileView))
+	{
+		// GameMode->GetSaveGame()->mTileViewInven = TileView;
+	}
+
+}
+
+void APlayerCharacter::StartSkill()
+{
+}
+
+void APlayerCharacter::PlaySkillCameraShake()
+{
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), mSkillCameraShake, GetActorLocation(), 100.f, 1500.f, 1.f, false);
+}
+
+void APlayerCharacter::PlayUltimateCameraShake()
+{
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), mUltimateCameraShake, GetActorLocation(), 100.f, 2000.f, 0.5f, false);
+}
+
+void APlayerCharacter::CameraZoomInOut()
+{
+	if (mCameraZoomIn)
+	{
+		mSpringArm->TargetArmLength -= mCameraZoomSpeed;
+
+		if (mSpringArm->TargetArmLength < mSkillCameraZoomMin)
+		{
+			mSpringArm->TargetArmLength = mSkillCameraZoomMin;
+			mCameraZoom = false;
+		}
+	}
+
+	else
+	{
+		if (mSpringArm->TargetArmLength < mSkillCameraZoomMax)
+		{
+			mSpringArm->TargetArmLength += mCameraZoomSpeed;
+			mCameraZoom = false;
+		}
+	}
+}
+
 void APlayerCharacter::AttackBuffOn(float DeltaTime)
 {
 	if (!mAttackBuff.bBuffOn)
@@ -521,14 +744,12 @@ void APlayerCharacter::AttackBuffOn(float DeltaTime)
 	mAttackBuff.CurBuffTime += DeltaTime;
 
 	if (mAttackBuff.CurBuffTime <= mAttackBuff.BuffTime)
-	{
-
 		mPlayerInfo.AttackPoint = mAttackBuff.OriginStat + mAttackBuff.BuffValue;
-	}
 
 	else
 	{
-		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		APFGameModeBase* GameMode = 
+			Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
 		MainHUD->SetAttackBuffOff(mAttackBuff.BuffValue);

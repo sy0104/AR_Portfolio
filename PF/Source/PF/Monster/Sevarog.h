@@ -25,4 +25,11 @@ public:
 	virtual void Attack();
 	virtual void Skill1();
 	virtual void Skill2();
+	virtual void Skill3();
+	virtual void CastSkill1();
+	virtual void CastSkill2();
+
+private:
+	FVector		CastLoc;
+	FVector		CastForward;
 };

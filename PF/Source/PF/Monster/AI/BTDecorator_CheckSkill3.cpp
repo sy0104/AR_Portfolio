@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTDecorator_CheckSkill1.h"
+#include "BTDecorator_CheckSkill3.h"
 #include "../MonsterAIController.h"
 #include "../Monster.h"
 
-UBTDecorator_CheckSkill1::UBTDecorator_CheckSkill1()
+UBTDecorator_CheckSkill3::UBTDecorator_CheckSkill3()
 {
 }
 
-bool UBTDecorator_CheckSkill1::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTDecorator_CheckSkill3::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
@@ -34,5 +34,6 @@ bool UBTDecorator_CheckSkill1::CalculateRawConditionValue(UBehaviorTreeComponent
 	if (!IsValid(Target))
 		return false;
 
-	return Monster->GetMonsterPhase() == EMonsterPhase::Skill1;
+
+	return Monster->GetMonsterPhase() == EMonsterPhase::Skill3;
 }

@@ -25,5 +25,6 @@ public:
 	virtual void Attack();
 	virtual void Skill1();
 	virtual void Skill2();
+	virtual void Skill3();
 
 };

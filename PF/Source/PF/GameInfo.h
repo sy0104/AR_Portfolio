@@ -26,6 +26,30 @@ DECLARE_LOG_CATEGORY_EXTERN(PF, Log, All);
 
 void PrintViewport(float Time, const FColor& Color, const FString& Text);
 
+USTRUCT(BlueprintType)
+struct FPotionBuff
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	bool		bBuffOn;
+	float		CurBuffTime;
+	float		BuffTime;
+	float		BuffValue;
+	float		OriginStat;
+};
+
+USTRUCT(BlueprintType)
+struct FEquipedItem
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UObject* Weapon;
+	UObject* Armor;
+	UObject* Accesary;
+};
+
 UENUM(BlueprintType)
 enum class EPlayerJob : uint8
 {
@@ -122,7 +146,8 @@ enum class EMonsterPhase : uint8
 {
 	NormalAttack,
 	Skill1,
-	Skill2
+	Skill2,
+	Skill3
 };
 
 

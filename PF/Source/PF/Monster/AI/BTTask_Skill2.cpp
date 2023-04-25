@@ -138,7 +138,6 @@ void UBTTask_Skill2::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
 		Monster->SetSkillEnd(false);
 	}
-
 }
 
 void UBTTask_Skill2::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)

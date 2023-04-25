@@ -37,11 +37,12 @@ void UInventoryBase::ClickItem(UObject* Item)
 
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
 
-	UInventoryItemBase* NewItem =
-		Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->
-			GetTileView()->GetEntryWidgetFromItem(Item));
+	if (!IsValid(TileView))
+		return;
 
+	UInventoryItemBase* NewItem = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(Item));
 	FItemDataInfo* ItemInfo = Cast<UItemDataBase>(Item)->GetItemInfo();
 
 	switch (ItemInfo->ItemType)
@@ -52,12 +53,14 @@ void UInventoryBase::ClickItem(UObject* Item)
 	case EItemType::Equip_Weapon:
 		if (PlayerCharacter->IsEquipedWeapon())
 		{
-			UInventoryItemBase* OldItem =
-				Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->
-					GetTileView()->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedWeapon()));
+			UInventoryItemBase* OldItem = Cast<UInventoryItemBase>(
+				TileView->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedWeapon()));
 
-			OldItem->SetUnEquip();
-			PlayerCharacter->UnEquipItem(PlayerCharacter->GetEquipedWeapon());
+			if (IsValid(OldItem))
+			{
+				OldItem->SetUnEquip();	// (인벤토리 UI) 착용상태 해제
+				PlayerCharacter->UnEquipItem(PlayerCharacter->GetEquipedWeapon());
+			}
 		}
 
 		NewItem->SetEquip();
@@ -163,10 +166,14 @@ void UInventoryBase::ShowItemDesc(UObject* Item, bool IsHovered, FVector2D Mouse
 	{
 		int Index = mTileView->GetIndexForItem(Item);
 
-		UItemDataBase* Item = Cast<UItemDataBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetItemAt(Index));
-
-		UInventoryItemBase* ItemBase =
-			Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetEntryWidgetFromItem(Item));
+		UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+		
+		if (IsValid(TileView))
+		{
+			UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(Index));
+			UInventoryItemBase* ItemBase =
+				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(IndexItem));
+		}
 
 		//ItemBase->SetItemDescOff(Item);
 		//mDescBackImage->SetRenderTranslation

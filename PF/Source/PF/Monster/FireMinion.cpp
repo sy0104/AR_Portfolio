@@ -50,22 +50,45 @@ void AFireMinion::Attack()
 
 	if (IsValid(Target))
 	{
-		FActorSpawnParameters SpawnParam;
-		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		// Collision
+		FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
+		FVector EndLocation = StartLocation + GetActorForwardVector() * mMonsterInfo.AttackDistance;
 
-		// Particle
-		FVector Dir = GetActorLocation() - Target->GetActorLocation();
-		Dir.Normalize();
+		FCollisionQueryParams param(NAME_None, false, this);
 
-		FVector ParticleLoc = Target->GetActorLocation() + Dir * 50.f;
+		TArray<FHitResult>	CollisionResult;
+		bool CollisionEnable = GetWorld()->SweepMultiByChannel(
+			CollisionResult, StartLocation,
+			EndLocation, FQuat::Identity,
+			ECollisionChannel::ECC_GameTraceChannel7,
+			FCollisionShape::MakeSphere(50.f),
+			param);
 
-		AParticleCascade* Particle = GetWorld()->SpawnActor<AParticleCascade>(
-			ParticleLoc, Dir.Rotation(), SpawnParam);
+		if (CollisionEnable)
+		{
+			int32 Count = CollisionResult.Num();
 
-		Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonMinions/FX/Particles/Minions/Shared/P_Minion_Melee_Impact.P_Minion_Melee_Impact'"));
-		//Particle->SetSound(TEXT(""));
+			for (int32 i = 0; i < Count; ++i)
+			{
+				FActorSpawnParameters SpawnParam;
+				SpawnParam.SpawnCollisionHandlingOverride =
+					ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		Target->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
+				// Particle
+				FVector Dir = GetActorLocation() - Target->GetActorLocation();
+				Dir.Normalize();
+
+				FVector ParticleLoc = Target->GetActorLocation() + Dir * 50.f;
+				AParticleCascade* Particle = GetWorld()->SpawnActor<AParticleCascade>(
+					ParticleLoc, Dir.Rotation(), SpawnParam);
+
+				Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonMinions/FX/Particles/Minions/Shared/P_Minion_Melee_Impact.P_Minion_Melee_Impact'"));
+
+				CollisionResult[i].GetActor()->TakeDamage(
+					(float)mMonsterInfo.AttackPoint,
+					FDamageEvent(), GetController(), this);
+			}
+		}
 	}
 }
 
@@ -75,6 +98,11 @@ void AFireMinion::Skill1()
 }
 
 void AFireMinion::Skill2()
+{
+	Attack();
+}
+
+void AFireMinion::Skill3()
 {
 	Attack();
 }

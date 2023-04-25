@@ -33,24 +33,18 @@ void ASkillProjectile::Tick(float DeltaTime)
 	if (mDistance > -1.f)
 	{
 		float Dist = FVector::Distance(mPrevLocation, GetActorLocation());
-
 		mDistance -= Dist;
 
 		if (Dist <= 0.f)
-		{
 			Destroy();
-		}
 
 		else
 			mPrevLocation = GetActorLocation();
 	}
-
 }
 
 void ASkillProjectile::CollisionProjectile(const FHitResult& Hit)
 {
 	mOnSkillEnd.Broadcast(this, Hit);
-
-	PrintViewport(1.f, FColor::Red, TEXT("Hit"));
 }
 

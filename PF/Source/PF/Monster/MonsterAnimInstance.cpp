@@ -18,6 +18,8 @@ UMonsterAnimInstance::UMonsterAnimInstance()
 	mAttackDelay = false;
 	mAttackDelayTime = 0.f;
 	mCurDelayTime = 0.f;
+
+	mUseSkill = false;
 }
 
 void UMonsterAnimInstance::NativeInitializeAnimation()
@@ -71,7 +73,9 @@ void UMonsterAnimInstance::AnimNotify_Attack()
 	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());
 
 	if (IsValid(Monster))
+	{
 		Monster->Attack();
+	}
 
 	mAttackEnd = false;
 }
@@ -109,8 +113,39 @@ void UMonsterAnimInstance::AnimNotify_Skill2()
 
 	if (IsValid(Monster))
 	{
-		Monster->SKill2();
+		Monster->Skill2();
 		Monster->SetSkillEnd(false);
+	}
+}
+
+void UMonsterAnimInstance::AnimNotify_Skill3()
+{
+	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->Skill3();
+		Monster->SetSkillEnd(false);
+	}
+}
+
+void UMonsterAnimInstance::AnimNotify_CastSkill1()
+{
+	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->CastSkill1();
+	}
+}
+
+void UMonsterAnimInstance::AnimNotify_CastSkill2()
+{
+	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->CastSkill2();
 	}
 }
 

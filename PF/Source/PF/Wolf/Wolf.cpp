@@ -39,9 +39,9 @@ AWolf::AWolf()
 	mProjectile = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile"));
 	mProjectile->SetUpdatedComponent(RootComponent);
 
-	mProjectile->InitialSpeed = 800.f;
+	mProjectile->InitialSpeed = 1000.f;
 	mProjectile->ProjectileGravityScale = 0.1f;
-	mProjectile->Bounciness = 0.6f;
+	mProjectile->Bounciness = 1.f;
 
 	//mParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	//mParticle->SetupAttachment(GetMesh());

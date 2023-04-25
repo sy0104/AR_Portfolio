@@ -9,7 +9,6 @@
 #include "../PFGameModeBase.h"
 #include "../UMG/MainHUDBase.h"
 
-
 AShinbi::AShinbi()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SinbiAsset(
@@ -24,7 +23,8 @@ AShinbi::AShinbi()
 	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 
 	// AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClass(TEXT("AnimBlueprint'/Game/Player/ABShinbi.ABShinbi_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClass
+	(TEXT("AnimBlueprint'/Game/Player/Shinbi/ABShinbi.ABShinbi_C'"));
 
 	if (AnimClass.Succeeded())
 		GetMesh()->SetAnimInstanceClass(AnimClass.Class);
@@ -36,18 +36,18 @@ void AShinbi::BeginPlay()
 
 	// PlayerInfo °ª ¼³Á¤
 	mPlayerInfo.Name = TEXT("Shinbi");
-	mPlayerInfo.AttackPoint = 100;	// 100
-	mPlayerInfo.ArmorPoint = 50;
-	mPlayerInfo.HP = 1000;
-	mPlayerInfo.HPMax = 1000;
-	mPlayerInfo.MP = 100;
-	mPlayerInfo.MPMax = 100;
-	mPlayerInfo.Level = 1;
-	mPlayerInfo.Exp = 0;
-	mPlayerInfo.ExpMax = 1000;
-	mPlayerInfo.Gold = 1000;
-	mPlayerInfo.MoveSpeed = 2000.f;
-	mPlayerInfo.AttackDistance = 200.f;
+	//mPlayerInfo.AttackPoint = 500;	// 100
+	//mPlayerInfo.ArmorPoint = 50;
+	//mPlayerInfo.HP = 1000;
+	//mPlayerInfo.HPMax = 1000;
+	//mPlayerInfo.MP = 100;
+	//mPlayerInfo.MPMax = 100;
+	//mPlayerInfo.Level = 1;
+	//mPlayerInfo.Exp = 0;
+	//mPlayerInfo.ExpMax = 1000;
+	//mPlayerInfo.Gold = 1000;
+	//mPlayerInfo.MoveSpeed = 2000.f;
+	//mPlayerInfo.AttackDistance = 200.f;
 
 	InitUI();
 }
@@ -75,28 +75,8 @@ void AShinbi::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AShinbi::InitUI()
 {
-	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+	Super::InitUI();
 
-	if (IsValid(MainHUD))
-	{
-		// Player Info UI
-		MainHUD->SetHP(mHPRatio);
-		MainHUD->SetMP(mMPRatio);
-		MainHUD->SetExp(mExpRatio);
-		MainHUD->SetLevel(mPlayerInfo.Level);
-		MainHUD->SetGold(mPlayerInfo.Gold);
-
-		// Player Stat UI
-		MainHUD->SetPlayerStatUI(mPlayerInfo);
-		MainHUD->SetPlayerStatVisible(false);
-
-		// Potion Info UI
-		MainHUD->SetHPPotionCount(0);
-		MainHUD->SetMPPotionCount(0);
-		MainHUD->SetAttackPotionCount(0);
-		MainHUD->SetArmorPotionCount(0);
-	}
 }
 
 void AShinbi::NormalAttackCheck()
@@ -114,14 +94,14 @@ void AShinbi::NormalAttackCheck()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6, 
 		FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-		mPlayerInfo.AttackDistance / 2.f, 50.f,
-		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-		DrawColor, false, 0.5f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//		mPlayerInfo.AttackDistance / 2.f, 50.f,
+//		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//		DrawColor, false, 0.5f);
+//#endif
 
 	if (CollisionEnable)
 	{
@@ -137,8 +117,8 @@ void AShinbi::NormalAttackCheck()
 				CollisionResult[i].ImpactPoint, CollisionResult[i].ImpactNormal.Rotation(),
 				SpawnParam);
 
-			Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Impact/NS_Impact_Laser_2.NS_Impact_Laser_2'"));
-			//Particle->SetSound(TEXT(""));
+			Particle->SetParticle(TEXT(
+				"NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Impact/NS_Impact_Laser_2.NS_Impact_Laser_2'"));
 
 			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint,
 				FDamageEvent(), GetController(), this);
@@ -188,6 +168,7 @@ void AShinbi::SkillQ()
 	AWolf* Wolf = GetWorld()->SpawnActor<AWolf>(
 		GetActorLocation() + GetActorForwardVector() * 150.f, 
 		GetActorRotation(), SpawnParam);
+
 }
 
 void AShinbi::SkillE()
@@ -303,4 +284,13 @@ void AShinbi::CheckCameraZoom()
 			mSpringArm->TargetArmLength += 20.f;
 		}
 	}
+}
+
+void AShinbi::SavePlayer()
+{
+	Super::SavePlayer();
+}
+
+void AShinbi::WolfSkillEnd(ASkillActor* SkillActor, const FHitResult& Hit)
+{
 }

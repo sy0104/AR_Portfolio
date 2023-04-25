@@ -30,6 +30,7 @@ AMonster::AMonster()
 
 	mAttackEnd = false;
 	mSkillEnd = false;
+	mUseSkill = false;
 
 	mHPRatio = 1.f;
 
@@ -220,15 +221,17 @@ float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 			HPWidget->SetHP(mHPRatio);
 		}
 
-		// HP Check
+		// Change Phase
 		float HPRatio = (float)mMonsterInfo.HP / mMonsterInfo.MPMax;
 
-		if (mHPRatio > 0.7f)
+		if (mHPRatio > 0.8f)
 			mMonsterPhase = EMonsterPhase::NormalAttack;
-		else if (mHPRatio > 0.4f && mHPRatio <= 0.7f)
+		else if (mHPRatio > 0.6f && mHPRatio <= 0.8f)
 			mMonsterPhase = EMonsterPhase::Skill1;
-		else
+		else if (mHPRatio > 0.4f && mHPRatio <= 0.6f)
 			mMonsterPhase = EMonsterPhase::Skill2;
+		else
+			mMonsterPhase = EMonsterPhase::Skill3;
 
 	}
 
@@ -262,7 +265,19 @@ void AMonster::Skill1()
 {
 }
 
-void AMonster::SKill2()
+void AMonster::Skill2()
+{
+}
+
+void AMonster::Skill3()
+{
+}
+
+void AMonster::CastSkill1()
+{
+}
+
+void AMonster::CastSkill2()
 {
 }
 
@@ -298,6 +313,10 @@ void AMonster::CheckAttackDelayTime(float DeltaTime)
 			mCurDelayTime = 0.f;
 		}
 	}
+}
+
+void AMonster::CheckUseSkill()
+{
 }
 
 FVector AMonster::GetPatrolLocation() const

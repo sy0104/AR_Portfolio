@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	bool					mAttackEnd;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	bool					mUseSkill;
+
 private:
 	float		mAttackDelayTime;
 	float		mCurDelayTime;
@@ -84,6 +87,15 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_Skill2();
+
+	UFUNCTION()
+	void AnimNotify_Skill3();
+
+	UFUNCTION()
+	void AnimNotify_CastSkill1();
+
+	UFUNCTION()
+	void AnimNotify_CastSkill2();
 
 	UFUNCTION()
 	void AnimNotify_SkillEnd();

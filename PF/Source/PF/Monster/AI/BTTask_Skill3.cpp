@@ -1,38 +1,38 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTTask_Attack.h"
+#include "BTTask_Skill3.h"
 #include "../MonsterAIController.h"
 #include "../Monster.h"
 #include "../MonsterAnimInstance.h"
 
-UBTTask_Attack::UBTTask_Attack()
+UBTTask_Skill3::UBTTask_Skill3()
 {
-	NodeName = TEXT("Attack");
+	NodeName = TEXT("Skill3");
 	bNotifyTick = true;
 	bNotifyTaskFinished = true;
 }
 
-EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_Skill3::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	// Monster AI Controller
 	AMonsterAIController* Controller = Cast<AMonsterAIController>(OwnerComp.GetAIOwner());
-	
+
 	if (!IsValid(Controller))
 		return EBTNodeResult::Failed;
 
 	// Monster
 	AMonster* Monster = Cast<AMonster>(Controller->GetPawn());
-	
+
 	if (!IsValid(Monster))
 		return EBTNodeResult::Failed;
 
+
 	// Target 있으면 Attack, 없으면 Idle
 	UMonsterAnimInstance* Anim = Monster->GetMonsterAnimInst();
-	AActor* Target = Cast<AActor>(
-		Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	AActor* Target = Cast<AActor>(Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	// Target X
 	if (!IsValid(Target))
@@ -44,24 +44,24 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	}
 
 	// Target O
-	Anim->ChangeAnim(EMonsterAnimType::Attack);
+	Anim->ChangeAnim(EMonsterAnimType::Skill3);
 
 	return EBTNodeResult::InProgress;
 }
 
-EBTNodeResult::Type UBTTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_Skill3::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	EBTNodeResult::Type result = Super::AbortTask(OwnerComp, NodeMemory);
 
 	return result;
 }
 
-void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UBTTask_Skill3::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	AMonsterAIController* Controller = Cast<AMonsterAIController>(OwnerComp.GetAIOwner());
-	
+
 	if (!IsValid(Controller))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
@@ -69,14 +69,14 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	}
 
 	AMonster* Monster = Cast<AMonster>(Controller->GetPawn());
-	
+
 	if (!IsValid(Monster))
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
-	if (Monster->GetMonsterPhase() != EMonsterPhase::NormalAttack)
+	if (Monster->GetMonsterPhase() != EMonsterPhase::Skill3)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
@@ -95,7 +95,6 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		return;
 	}
 
-
 	if (!IsValid(Target))
 	{
 		Controller->StopMovement();
@@ -107,7 +106,7 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
 	// 공격이 끝났는지 판단하고
 	// 공격이 끝난 후 AttackDistance 안에 타겟이 있다면 타겟이 있는 방향으로 회전시켜준다.
-	if (Monster->GetAttackEnd())
+	if (Monster->GetSkillEnd())
 	{
 		const FMonsterInfo& Info = Monster->GetMonsterInfo();
 
@@ -137,11 +136,11 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 			Monster->SetActorRotation(FRotator(0.f, Dir.Rotation().Yaw, 0.f));
 		}
 
-		Monster->SetAttackEnd(false);
+		Monster->SetSkillEnd(false);
 	}
 }
 
-void UBTTask_Attack::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
+void UBTTask_Skill3::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
 {
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
 }

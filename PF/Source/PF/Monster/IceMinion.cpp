@@ -77,3 +77,8 @@ void AIceMinion::Skill2()
 {
 	Attack();
 }
+
+void AIceMinion::Skill3()
+{
+	Attack();
+}

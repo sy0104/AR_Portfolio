@@ -22,7 +22,8 @@ protected:
 public:
 	virtual void Attack();
 	virtual void Skill1();
-	virtual void SKill2();
+	virtual void Skill2();
+	virtual void Skill3();
 
 public:
 	virtual void PossessedBy(AController* NewController);

@@ -151,9 +151,19 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(mCurWorld));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
-	TArray<UObject*> TileViewItems = MainHUD->GetInventoryWidget()->GetTileView()->GetListItems();
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+	TArray<UObject*> TileViewItems;
+	int32 Count = 0;
 
-	int32 Count = TileViewItems.Num();
+	if (IsValid(TileView))
+	{
+		TileViewItems = TileView->GetListItems();
+		Count = TileViewItems.Num();
+	}
+
+	else
+		return;
+
 	int32 Index, ItemCount;
 	bool bCheck = false;
 
@@ -175,19 +185,21 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 
 	if (bCheck)	// 중복된 아이템이 있는 경우
 	{
-		// TilewView 중복된 아이템 개수 변경 (ItemCount)
-		Cast<UItemDataBase>(MainHUD->GetInventoryWidget()->GetTileView()->
-			GetItemAt(Index))->SetItemCount(ItemCount + 1);
+		UItemDataBase* IndexItem;
+		IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(Index));
 
-		// UI에 표시된 ItemCount 개수 변경
-		UItemDataBase* Item = Cast<UItemDataBase>(
-			MainHUD->GetInventoryWidget()->GetTileView()->GetItemAt(Index));
+		if (IsValid(IndexItem))
+		{
+			// TilewView 중복된 아이템 개수 변경 (ItemCount)
+			IndexItem->SetItemCount(ItemCount + 1);
 
-		UInventoryItemBase* ItemBase =
-			Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->
-				GetTileView()->GetEntryWidgetFromItem(Item));
+			// UI에 표시된 아이탬 개수 변경
+			UInventoryItemBase* ItemBase =
+				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(IndexItem));
 
-		ItemBase->SetItemCountText(ItemCount + 1);
+			if (IsValid(ItemBase))
+				ItemBase->SetItemCountText(ItemCount + 1);
+		}
 	}
 
 	else
@@ -197,6 +209,11 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 
 		NewData->SetItemInfo(Item);
 		NewData->SetItemCount(1);
-		MainHUD->GetInventoryWidget()->GetTileView()->AddItem(NewData);
+		TileView->AddItem(NewData);
 	}
+}
+
+void UInventoryManager::SaveInventory()
+{
+
 }

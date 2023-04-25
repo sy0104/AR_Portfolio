@@ -54,16 +54,16 @@ void AIceGrux::Attack()
 			ECollisionChannel::ECC_GameTraceChannel7,
 			FCollisionShape::MakeSphere(50.f),
 			param);
-
-#if ENABLE_DRAW_DEBUG
-		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-			mMonsterInfo.AttackDistance / 2.f,
-			50.f,
-			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-			DrawColor, false, 0.5f);
-#endif
+//
+//#if ENABLE_DRAW_DEBUG
+//		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//			mMonsterInfo.AttackDistance / 2.f,
+//			50.f,
+//			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//			DrawColor, false, 0.5f);
+//#endif
 
 		if (CollisionEnable)
 		{
@@ -83,7 +83,6 @@ void AIceGrux::Attack()
 						SpawnParam);
 
 				Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonGrux/FX/Particles/Abilities/Primary/FX/P_Grux_Melee_SucessfulImpact.P_Grux_Melee_SucessfulImpact'"));
-				Particle->SetSound(TEXT("SoundWave'/Game/Sound/Fire1.Fire1'"));
 
 				CollisionResult[i].GetActor()->TakeDamage(
 					(float)mMonsterInfo.AttackPoint,
@@ -113,20 +112,21 @@ void AIceGrux::Attack()
 void AIceGrux::Skill1()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
-	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	ACharacter* Target = Cast<ACharacter>(
+		MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	mAttackDelayTime = 2.f;
 	mMonsterInfo.AttackDistance = 1000.f;
 
-	FActorSpawnParameters	SpawnParam;
-
+	FActorSpawnParameters SpawnParam;
 	SpawnParam.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Skill
 	ASkillProjectile* Skill =
 		GetWorld()->SpawnActor<ASkillProjectile>(
-			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, 
+			GetActorRotation(), SpawnParam);
 
 	Skill->SetNiagara(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Environment/NS_Environment_Lightning_2.NS_Environment_Lightning_2'"));
 	Skill->SetBoxExtent(FVector(50.f, 100.f, 50.f));
@@ -137,13 +137,13 @@ void AIceGrux::Skill1()
 	// Effect
 	AParticleNiagara* Particle =
 		GetWorld()->SpawnActor<AParticleNiagara>(
-			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, 
+			GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Explosion/NS_Explosion_Grenade_2.NS_Explosion_Grenade_2'"));
-	//Particle->SetSound(TEXT("SoundWave'/Game/Sound/Fire1.Fire1'"));
 }
 
-void AIceGrux::SKill2()
+void AIceGrux::Skill2()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
@@ -164,7 +164,7 @@ void AIceGrux::SKill2()
 	Skill->SetNiagara(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Environment/NS_Environment_Tornado_2.NS_Environment_Tornado_2'"));
 	Skill->SetCollisionProfile(TEXT("PlayerTrigger"));
 	Skill->SetLifeSpan(4.f);
-	Skill->GetProjectile()->InitialSpeed = 6000.f;
+	Skill->GetProjectile()->InitialSpeed = 4000.f;
 	
 	//// Effect
 	//AParticleNiagara* Particle =
@@ -173,6 +173,11 @@ void AIceGrux::SKill2()
 
 	//Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Impact/NS_Impact_Metal_1.NS_Impact_Metal_1'"));
 
+}
+
+void AIceGrux::Skill3()
+{
+	Skill2();
 }
 
 void AIceGrux::PossessedBy(AController* NewController)

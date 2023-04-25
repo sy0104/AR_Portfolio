@@ -13,6 +13,7 @@ enum class EPlayerAnimType : uint8
 	Jump,
 	Fall,
 	Hit,
+	Ultimate,
 	Death
 };
 
@@ -45,6 +46,8 @@ public:
 	void Attack();
 	void Jump();
 	void UseSkill(int32 SkillNumber);
+	void Ultimate();
+	void SkillETarget();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
@@ -67,6 +70,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UAnimMontage*					mFallRecoveryMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	UAnimMontage*					mSkillETargetMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	bool	mAttackEnable;
@@ -103,6 +109,11 @@ public:
 		mMoveDir = Dir;
 	}
 
+	void SetPlayerAnimType(EPlayerAnimType AnimType)
+	{
+		mAnimType = AnimType;
+	}
+
 public:
 	UFUNCTION()
 	void AnimNotify_Attack();
@@ -114,10 +125,19 @@ public:
 	void AnimNotify_AttackEnd();
 
 	UFUNCTION()
-	void AnimNotify_Cast();
+	void AnimNotify_SkillRCast();
+
+	UFUNCTION()
+	void AnimNotify_SkillRLand();
+
+	UFUNCTION()
+	void AnimNotify_SkillRMCast();
 
 	UFUNCTION()
 	void AnimNotify_UseSkill();
+
+	UFUNCTION()
+	void AnimNotify_SkillStart();
 
 	UFUNCTION()
 	void AnimNotify_SkillEnd();

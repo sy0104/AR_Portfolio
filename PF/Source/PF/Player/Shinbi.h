@@ -51,6 +51,14 @@ private:
 
 	void CheckCameraZoom();
 
+public:
+	virtual void SavePlayer();
+
+public:
+	UFUNCTION()
+	void WolfSkillEnd(class ASkillActor* SkillActor, const FHitResult& Hit);
+
+
 private:
 	EShinbiSkillType	mShinbiSkillType;
 	EShinbiSkillType	mSkillKeyInput;

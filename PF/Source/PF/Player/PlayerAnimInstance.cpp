@@ -3,7 +3,7 @@
 
 #include "PlayerAnimInstance.h"
 #include "PlayerCharacter.h"
-#include "Shinbi.h"
+#include "Countess.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
 {
@@ -90,6 +90,29 @@ void UPlayerAnimInstance::UseSkill(int32 SkillNumber)
 	}
 }
 
+void UPlayerAnimInstance::Ultimate()
+{
+	mAnimType = EPlayerAnimType::Ultimate;
+
+	mUseSkillNumber = 2;
+
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+	PlayerCharacter->SetUseSkill(true);
+}
+
+void UPlayerAnimInstance::SkillETarget()
+{
+	if (!IsValid(mSkillETargetMontage))
+		return;
+
+	if (Montage_IsPlaying(mSkillETargetMontage))
+	{
+		Montage_SetPosition(mSkillETargetMontage, 0.f);
+		Montage_Play(mSkillETargetMontage);
+	}
+}
+
+
 void UPlayerAnimInstance::Hit()
 {
 	if (!IsValid(mHitMontage))
@@ -122,18 +145,34 @@ void UPlayerAnimInstance::AnimNotify_AttackEnable()
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()
 {
-	mAttackIndex = 0;
 	mAttackEnable = true;
 	mAttack = false;
 }
 
-void UPlayerAnimInstance::AnimNotify_Cast()
+void UPlayerAnimInstance::AnimNotify_SkillRCast()
 {
-	//APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 
-	//if (IsValid(PlayerCharacter))
-	//	PlayerCharacter->SkillQ();
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->SkillRCast();
 }
+
+void UPlayerAnimInstance::AnimNotify_SkillRLand()
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->SetCameraZoom(true, 30.f, true, 500.f, 500.f);
+}
+
+void UPlayerAnimInstance::AnimNotify_SkillRMCast()
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->SkillRMCast();
+}
+
 
 void UPlayerAnimInstance::AnimNotify_UseSkill()
 {
@@ -143,7 +182,20 @@ void UPlayerAnimInstance::AnimNotify_UseSkill()
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 
 	if (IsValid(PlayerCharacter))
+	{
 		PlayerCharacter->UseSkill(mUseSkillNumber);
+		PlayerCharacter->SetUseSkill(true);
+	}
+}
+
+void UPlayerAnimInstance::AnimNotify_SkillStart()
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->StartSkill();
+	}
 }
 
 void UPlayerAnimInstance::AnimNotify_SkillEnd()
@@ -152,6 +204,10 @@ void UPlayerAnimInstance::AnimNotify_SkillEnd()
 
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 	PlayerCharacter->SetUseSkill(false);
+	PlayerCharacter->SetTimeDilation(1.f);
+
+	if (mAnimType == EPlayerAnimType::Ultimate)
+		mAnimType = EPlayerAnimType::Ground;
 }
 
 void UPlayerAnimInstance::AnimNotify_JumpEnd()
@@ -205,5 +261,4 @@ void UPlayerAnimInstance::AnimNotify_DashEnd()
 	PlayerCharacter->SetDash(false);
 
 	PrintViewport(1.f, FColor::Red, TEXT("DashEnd"));
-
 }

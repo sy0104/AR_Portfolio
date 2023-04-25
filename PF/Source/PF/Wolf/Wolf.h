@@ -11,6 +11,8 @@ class PF_API AWolf : public ACharacter
 {
 	GENERATED_BODY()
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWolfDead, ASkillActor*, SkillActor, const FHitResult&, Hit);
+
 public:
 	AWolf();
 
@@ -40,6 +42,10 @@ protected:
 	FRotator			mSpawnRotation;
 
 	class UWolfAnimInstance*	mAnimInst;
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnWolfDead		mOnWolfDead;
 
 public:
 	void SetAttackPoint(int32 AttackPoint)

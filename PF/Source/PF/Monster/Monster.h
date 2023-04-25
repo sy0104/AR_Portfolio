@@ -42,8 +42,13 @@ public:
 
 public:
 	virtual void Attack();
+
 	virtual void Skill1();
-	virtual void SKill2();
+	virtual void Skill2();
+	virtual void Skill3();
+
+	virtual void CastSkill1();
+	virtual void CastSkill2();
 
 public:
 	void OnDissolve();
@@ -51,6 +56,7 @@ public:
 
 protected:
 	virtual void CheckAttackDelayTime(float DeltaTime);
+	virtual void CheckUseSkill();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
@@ -123,7 +129,8 @@ protected:
 	TArray<FMonsterSkillInfo>	mSkillDataArray;
 
 	int32	mUseSkillIndex;
-
+	bool	mUseSkill;
+	
 public:
 	const FMonsterInfo& GetMonsterInfo() const
 	{
