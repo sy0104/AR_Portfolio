@@ -52,6 +52,9 @@ APlayerCharacter::APlayerCharacter()
 	mMPRatio = 1.f;
 	mExpRatio = 0.f;
 
+	mCurMPTime = 0.f;
+	mMPRecoveryTime = 3.f;
+
 	mAttackBuff.bBuffOn = false;
 	mAttackBuff.CurBuffTime = 0.f;
 	mAttackBuff.BuffTime = 10.f;
@@ -165,6 +168,8 @@ void APlayerCharacter::BeginPlay()
 
 		mSkillDataArray.Add(SkillInfo);
 	}
+
+	InitUI();
 }
 
 void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -186,6 +191,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	ArmorBuffOn(DeltaTime);
 
 	CameraZoomInOut();
+	RecoveryMP(DeltaTime);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -373,26 +379,73 @@ void APlayerCharacter::NormalAttack()
 
 void APlayerCharacter::SkillQKey()
 {
-	//if (mDeath || mTargeting)
-	//	return;
+	if (mDeath || mTargeting)
+		return;
+
+	int32 SkillNum = (int32)EPlayerSkillKey::SkillQ;
+
+	if (mPlayerInfo.MP < mSkillDataArray[SkillNum].MP)
+		return;
 
 	//mAnimInst->UseSkill(0);
+
+	// 마나
+	mPlayerInfo.MP -= mSkillDataArray[SkillNum].MP;
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	mMPRatio -= mSkillDataArray[SkillNum].MP * (1.f / (float)mPlayerInfo.MPMax);
+	MainHUD->SetMP(mMPRatio);
+	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
 }
 
 void APlayerCharacter::SkillEKey()
 {
-	//if (mDeath || mTargeting)
-	//	return;
+	if (mDeath || mTargeting)
+		return;
 
 	//mAnimInst->UseSkill(1);
+
+	int32 SkillNum = (int32)EPlayerSkillKey::SkillE;
+
+	if (mPlayerInfo.MP < mSkillDataArray[SkillNum].MP)
+		return;
+
+	// 마나
+	mPlayerInfo.MP -= mSkillDataArray[SkillNum].MP;
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	mMPRatio -= mSkillDataArray[SkillNum].MP * (1.f / (float)mPlayerInfo.MPMax);
+	MainHUD->SetMP(mMPRatio);
+	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
+
 }
 
 void APlayerCharacter::SkillRKey()
 {
-	//if (mDeath)
-	//	return;
+	if (mDeath)
+		return;
 
 	//mAnimInst->UseSkill(2);
+
+	int32 SkillNum = (int32)EPlayerSkillKey::SkillR;
+
+	if (mPlayerInfo.MP < mSkillDataArray[SkillNum].MP)
+		return;
+
+	// 마나
+	mPlayerInfo.MP -= mSkillDataArray[SkillNum].MP;
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	mMPRatio -= mSkillDataArray[SkillNum].MP * (1.f / (float)mPlayerInfo.MPMax);
+	MainHUD->SetMP(mMPRatio);
+	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
+
 }
 
 void APlayerCharacter::SkillFKey()
@@ -410,7 +463,24 @@ void APlayerCharacter::SkillRMKey()
 	if (mDeath || mTargeting)
 		return;
 
+
+	int32 SkillNum = (int32)EPlayerSkillKey::SkillRM;
+
+	if (mPlayerInfo.MP < mSkillDataArray[SkillNum].MP)
+		return;
+
 	mAnimInst->UseSkill(3);
+
+	// 마나
+	mPlayerInfo.MP -= mSkillDataArray[SkillNum].MP;
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	mMPRatio -= mSkillDataArray[SkillNum].MP * (1.f / (float)mPlayerInfo.MPMax);
+	MainHUD->SetMP(mMPRatio);
+	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
+
 }
 
 void APlayerCharacter::JumpKey()
@@ -758,6 +828,33 @@ void APlayerCharacter::CameraZoomInOut()
 		{
 			mSpringArm->TargetArmLength += mCameraZoomSpeed;
 			mCameraZoom = false;
+		}
+	}
+}
+
+void APlayerCharacter::RecoveryMP(float DeltaTime)
+{
+	if (mPlayerInfo.MP < mPlayerInfo.MPMax)
+	{
+		mCurMPTime += DeltaTime;
+
+		if (mCurMPTime >= mMPRecoveryTime)
+		{
+			PrintViewport(1.f, FColor::Red, TEXT("MP Recovery"));
+
+			float MPRecovery = mPlayerInfo.MPMax * 0.1f;
+
+			mPlayerInfo.MP += (int32)MPRecovery;
+
+			// UI
+			APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+			UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+			mMPRatio = (float)mPlayerInfo.MP / mPlayerInfo.MPMax;
+			MainHUD->SetMP(mMPRatio);
+			MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
+
+			mCurMPTime = 0.f;
 		}
 	}
 }

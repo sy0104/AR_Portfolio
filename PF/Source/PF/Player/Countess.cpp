@@ -75,7 +75,6 @@ void ACountess::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void ACountess::InitUI()
 {
 	Super::InitUI();
-
 }
 
 void ACountess::NormalAttackCheck()
@@ -168,13 +167,9 @@ void ACountess::SkillQ()
 
 	TeleportParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_TeleportBegin.P_Countess_TeleportBegin'"));
 
-
 	// Skill
 	int32 SkillNum = (int32)ECountessSkillType::BlinkStrike;
 	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
-
-	// ¸¶³ª
-
 
 	FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
 	FVector EndLocation = StartLocation + GetActorForwardVector() * mPlayerInfo.AttackDistance;
@@ -233,24 +228,78 @@ void ACountess::SkillE()
 	FRotator Rotation = GetActorRotation();
 	Rotation.Yaw += 90.f;
 
-	AParticleCascade* Particle =
+	AParticleCascade* EffectParticle =
 		GetWorld()->SpawnActor<AParticleCascade>(
 			GetActorLocation(), Rotation, SpawnParam);
 
-	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_SegmentFX.p_RollingDark_SegmentFX'"));
+	EffectParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_SegmentFX.p_RollingDark_SegmentFX'"));
 
 	// Skill
 	int32 SkillNum = (int32)ECountessSkillType::RollingDark;
 	mPlayerInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
 
-	ASkillProjectile* Skill =
-		GetWorld()->SpawnActor<ASkillProjectile>(
-			GetActorLocation() + GetActorForwardVector() * 50.f, Rotation, SpawnParam);
+	AParticleCascade* Particle =
+		GetWorld()->SpawnActor<AParticleCascade>(
+			GetActorLocation(), GetActorRotation(), SpawnParam);
 
-	Skill->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
-	Skill->SetCollisionProfile(TEXT("PlayerAttack"));
-	Skill->SetLifeSpan(4.f);
-	Skill->GetProjectile()->InitialSpeed = 4000.f;
+	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
+
+	FVector StartLocation = GetActorLocation() + GetActorForwardVector() * 30.f;
+	FVector EndLocation = StartLocation + GetActorForwardVector() * mPlayerInfo.AttackDistance;
+
+	FCollisionQueryParams param(NAME_None, false, this);
+
+	TArray<FHitResult> CollisionResult;
+	bool CollisionEnable = GetWorld()->SweepMultiByChannel(CollisionResult,
+		StartLocation, EndLocation,
+		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
+		FCollisionShape::MakeSphere(50.f), param);
+
+#if ENABLE_DRAW_DEBUG
+	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+
+	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+		mPlayerInfo.AttackDistance / 2.f, 50.f,
+		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+		DrawColor, false, 0.5f);
+#endif
+
+	if (CollisionEnable)
+	{
+		int32 Count = CollisionResult.Num();
+
+		for (int32 i = 0; i < Count; ++i)
+		{
+			AParticleCascade* ImpactParticle =
+				GetWorld()->SpawnActor<AParticleCascade>(
+					CollisionResult[i].ImpactPoint,
+					CollisionResult[i].ImpactNormal.Rotation(), SpawnParam);
+
+			ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_BlinkStrike_HitFX.P_Countess_BlinkStrike_HitFX'"));
+
+			int32 OptionCount = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+			float DamageRatio = 0.f;
+
+			for (int32 j = 0; j < OptionCount; ++j)
+			{
+				if (mSkillDataArray[SkillNum].SkillOptionArray[j].Type == ESkillOptionType::Damage)
+					DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
+			}
+
+			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint * DamageRatio,
+				FDamageEvent(), GetController(), this);
+		}
+	}
+
+
+	//ASkillProjectile* Skill =
+	//	GetWorld()->SpawnActor<ASkillProjectile>(
+	//		GetActorLocation() + GetActorForwardVector() * 50.f, Rotation, SpawnParam);
+
+	//Skill->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
+	//Skill->SetCollisionProfile(TEXT("PlayerAttack"));
+	//Skill->SetLifeSpan(4.f);
+	//Skill->GetProjectile()->InitialSpeed = 4000.f;
 
 	PlaySkillCameraShake();
 }
@@ -406,7 +455,7 @@ void ACountess::SkillQKey()
 		mReturnRotation = GetActorRotation().Vector();
 
 		const FVector ForwardDir = GetActorRotation().Vector();
-		LaunchCharacter(ForwardDir * 20.f * 700.f, true, true);
+		LaunchCharacter(ForwardDir * 20.f * 600.f, true, true);
 
 		mAnimInst->UseSkill(0);
 	}

@@ -26,6 +26,8 @@ DECLARE_LOG_CATEGORY_EXTERN(PF, Log, All);
 
 void PrintViewport(float Time, const FColor& Color, const FString& Text);
 
+
+
 USTRUCT(BlueprintType)
 struct FPotionBuff
 {
@@ -59,6 +61,15 @@ enum class EPlayerJob : uint8
 	Magicion,
 	Summoner,
 	End
+};
+
+UENUM(BlueprintType)
+enum class EPlayerSkillKey : uint8
+{
+	SkillQ,
+	SkillE,
+	SkillR,
+	SkillRM
 };
 
 USTRUCT(BlueprintType)

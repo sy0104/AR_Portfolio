@@ -92,6 +92,7 @@ public:
 
 protected:
 	void CameraZoomInOut();
+	void RecoveryMP(float DeltaTime);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))
@@ -140,6 +141,9 @@ protected:
 	float		mHPRatio;
 	float		mMPRatio;
 	float		mExpRatio;
+
+	float		mCurMPTime;
+	float		mMPRecoveryTime;
 
 	FPotionBuff			mAttackBuff;
 	FPotionBuff			mArmorBuff;
