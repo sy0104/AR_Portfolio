@@ -4,6 +4,7 @@
 
 #include "GameInfo.h"
 #include "GameFramework/SaveGame.h"
+#include "UMG/ItemDataBase.h"
 #include "PFSaveGame.generated.h"
 
 /**
@@ -16,6 +17,7 @@ class PF_API UPFSaveGame : public USaveGame
 
 	friend class APlayerCharacter;
 	friend class APFGameModeBase;
+	friend class UInventoryManager;
 	
 private:
 	UPROPERTY()
@@ -40,5 +42,8 @@ private:
 	float			mExpRatio;
 
 	UPROPERTY()
-	TArray<EItemID>	mInven;
+	int32				mInvenSize;
+
+	UPROPERTY()
+	TArray<UItemDataBase*>	mInven;
 };

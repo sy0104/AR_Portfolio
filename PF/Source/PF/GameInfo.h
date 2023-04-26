@@ -13,7 +13,6 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SplineComponent.h"
-
 #include "UObject/NoExportTypes.h"
 #include "GameInfo.generated.h"
 
@@ -543,6 +542,18 @@ enum class EItemID : uint8
 	AC_Necklace,
 
 	End
+};
+
+USTRUCT(Atomic, BlueprintType)
+struct FSaveItemInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	EItemID			ID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	int32			ItemCount;
 };
 
 USTRUCT(Atomic, BlueprintType)

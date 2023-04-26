@@ -6,6 +6,7 @@
 #include "Player/Countess.h"
 #include "Player/PFPlayerController.h"
 #include "UMG/MainHUDBase.h"
+#include "UMG/InventoryBase.h"
 #include "PFGameInstance.h"
 #include "PFSaveGame.h"
 #include "Manager/InventoryManager.h"
@@ -13,7 +14,7 @@
 APFGameModeBase::APFGameModeBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	//// Shinbi
 	//ConstructorHelpers::FClassFinder<AShinbi> ShinbiFinder(
 	//	TEXT("Blueprint'/Game/Blueprints/BPC_Shinbi.BPC_Shinbi_C'"));
@@ -40,12 +41,12 @@ APFGameModeBase::APFGameModeBase()
 		mMainHUDClass = Finder.Class;
 
 	// πË∞Ê¿Ω
-	static ConstructorHelpers::FObjectFinder<USoundWave> 
+	static ConstructorHelpers::FObjectFinder<USoundWave>
 		MainMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Magical_Fantasy.Magical_Fantasy'"));
 
 	if (MainMusicAsset.Succeeded())
 		mSoundWave = MainMusicAsset.Object;
-	
+
 	mAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 	mAudio->bAutoActivate = false;
 }
@@ -146,11 +147,33 @@ void APFGameModeBase::SaveGame()
 		*Writer << mSaveGame->mMPRatio;
 		*Writer << mSaveGame->mExpRatio;
 
-		// Inven
-		
-
 		Writer->Close();
 
 		delete Writer;
 	}
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+
+	TArray<FSaveItemInfo> SaveItemArray;
+
+	int32 Count = TileView->GetNumItems();
+
+	for (int32 i = 0; i < Count; ++i)
+	{
+		FSaveItemInfo SaveItem;
+
+		UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
+		FItemDataInfo* ItemInfo = IndexItem->GetItemInfo();
+
+		SaveItem.ID = ItemInfo->ID;
+		SaveItem.ItemCount = ItemInfo->ItemCount;
+
+		SaveItemArray.Add(SaveItem);
+	}
+
+	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+	GameInst->SetSaveInven(SaveItemArray);
 }

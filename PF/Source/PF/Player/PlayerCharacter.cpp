@@ -144,11 +144,39 @@ void APlayerCharacter::BeginPlay()
 		mPlayerInfo.AttackDistance = 200.f;
 	}
 
+	// Inven Load
+	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+	TArray<UObject*> ListItems = TileView->GetListItems();
+
+	if (IsValid(TileView))
+	{
+		TArray<FSaveItemInfo> SaveItemArray = GameInst->GetSaveInven();
+
+		int32 Count = SaveItemArray.Num();
+		
+		for (int32 i = 0; i < Count; ++i)
+		{
+			EItemID ItemID = SaveItemArray[i].ID;
+			int32 ItemCount = SaveItemArray[i].ItemCount;
+
+			FItemDataInfo* ItemInfo = UInventoryManager::GetInst(GetWorld())->GetItemInfo(ItemID);
+			UItemDataBase* ItemData = NewObject<UItemDataBase>();
+
+			ItemData->SetItemInfo(ItemInfo);
+			ItemData->SetItemCount(ItemCount);
+			
+			TileView->AddItem(ItemData);
+		}
+	}
+
 
 	// Skill
 	int32 SkillCount = mSkillNameArray.Num();
-
-	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
 
 	for (int32 i = 0; i < SkillCount; ++i)
 	{
@@ -538,8 +566,7 @@ void APlayerCharacter::ItemKey()
 
 void APlayerCharacter::HPPotionkey()
 {
-	FItemDataInfo* Item = UInventoryManager::GetInst(
-		GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
+	FItemDataInfo* Item = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
 
 	if (Item->ItemCount <= 0)
 		return;
@@ -768,14 +795,6 @@ void APlayerCharacter::SavePlayer()
 	SaveGame->mMPRatio = mMPRatio;
 	SaveGame->mExpRatio = mExpRatio;
 
-	UInventoryBase* InventoryBase = NewObject<UInventoryBase>();
-	UTileView* TileView = InventoryBase->GetTileView();
-
-	if (IsValid(TileView))
-	{
-
-	}
-
 	UGameplayStatics::SaveGameToSlot(SaveGame, TEXT("Save"), 0);
 
 	APFGameModeBase* GameMode = GetWorld()->GetAuthGameMode<APFGameModeBase>();
@@ -787,12 +806,6 @@ void APlayerCharacter::SavePlayer()
 	GameMode->GetSaveGame()->mHPRatio = mHPRatio;
 	GameMode->GetSaveGame()->mMPRatio = mMPRatio;
 	GameMode->GetSaveGame()->mExpRatio = mExpRatio;
-
-	if (IsValid(TileView))
-	{
-		// GameMode->GetSaveGame()->mTileViewInven = TileView;
-	}
-
 }
 
 void APlayerCharacter::StartSkill()

@@ -17,6 +17,11 @@ public class PF : ModuleRules
 			, "Niagara"
             , "AIModule"
             , "GameplayTasks"
+            , "NavigationSystem"
+            , "UMG"
+            , "MovieScene"
+            , "LevelSequence"
+            , "MediaAssets"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

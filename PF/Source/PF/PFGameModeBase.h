@@ -3,6 +3,7 @@
 #pragma once
 
 #include <Blueprint\UserWidget.h>
+#include <Components/TileView.h>
 
 #include "GameInfo.h"
 #include "GameFramework/GameModeBase.h"

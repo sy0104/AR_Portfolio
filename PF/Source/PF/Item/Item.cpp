@@ -61,6 +61,8 @@ void AItem::PickItem(class UPrimitiveComponent* OverlappedComp,
 	FItemDataInfo* Item = UInventoryManager::GetInst(GetWorld())->GetItemInfo(mItemID);
 	UInventoryManager::GetInst(GetWorld())->AddItem(Item);
 
+
+
 	if (Item->ItemType == EItemType::Potion)
 	{
 		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));

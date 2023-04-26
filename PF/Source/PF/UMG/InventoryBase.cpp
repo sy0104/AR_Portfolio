@@ -167,7 +167,7 @@ void UInventoryBase::ShowItemDesc(UObject* Item, bool IsHovered, FVector2D Mouse
 		int Index = mTileView->GetIndexForItem(Item);
 
 		UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
-		
+
 		if (IsValid(TileView))
 		{
 			UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(Index));
@@ -190,6 +190,7 @@ void UInventoryBase::UpdatePotionCount(EItemID ID)
 	int32 Count = TileViewItems.Num();
 	int32 ItemCount;
 
+	
 
 	for (int32 i = 0; i < Count; ++i)
 	{
