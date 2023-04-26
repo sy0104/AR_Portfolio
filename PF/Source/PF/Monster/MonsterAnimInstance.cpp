@@ -149,6 +149,16 @@ void UMonsterAnimInstance::AnimNotify_CastSkill2()
 	}
 }
 
+void UMonsterAnimInstance::AnimNotify_SkillStart()
+{
+	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->SkillStart();
+	}
+}
+
 void UMonsterAnimInstance::AnimNotify_SkillEnd()
 {
 	AMonster* Monster = Cast<AMonster>(TryGetPawnOwner());

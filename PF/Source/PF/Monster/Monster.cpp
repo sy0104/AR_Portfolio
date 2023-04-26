@@ -59,6 +59,13 @@ AMonster::AMonster()
 	// Monster HP Widget
 	mWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetCom"));
 	mWidgetComponent->SetupAttachment(GetMesh());
+
+	// Skill Camera Shake
+	static ConstructorHelpers::FClassFinder<UCameraShakeBase> BossSkillCameraShakeBPC(
+		TEXT("Blueprint'/Game/Blueprints/Camera/BPC_BossSkillCameraShake.BPC_BossSkillCameraShake_C'"));
+
+	if (BossSkillCameraShakeBPC.Succeeded())
+		mBossSkillCameraShake = BossSkillCameraShakeBPC.Class;
 }
 
 void AMonster::BeginPlay()
@@ -299,6 +306,10 @@ void AMonster::CastSkill2()
 {
 }
 
+void AMonster::SkillStart()
+{
+}
+
 void AMonster::OnDissolve()
 {
 	if (mDissolveMtrlArray.IsEmpty())
@@ -335,6 +346,11 @@ void AMonster::CheckAttackDelayTime(float DeltaTime)
 
 void AMonster::CheckUseSkill()
 {
+}
+
+void AMonster::PlayBossSkillCameraShake(FVector Location)
+{
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), mBossSkillCameraShake, Location, 100.f, 1500, 1.f, false);
 }
 
 FVector AMonster::GetPatrolLocation() const

@@ -116,6 +116,8 @@ void ASevarog::Attack()
 
 void ASevarog::Skill1()
 {
+	mSkillType = ESevarogSkill::Skill1;
+
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
@@ -151,6 +153,8 @@ void ASevarog::Skill1()
 
 void ASevarog::Skill2()
 {
+	mSkillType = ESevarogSkill::Skill2;
+
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
@@ -216,6 +220,8 @@ void ASevarog::Skill2()
 
 void ASevarog::Skill3()
 {
+	mSkillType = ESevarogSkill::Skill3;
+
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
@@ -301,12 +307,15 @@ void ASevarog::CastSkill1()
 
 		Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonSevarog/FX/Particles/Abilities/Subjugate/FX/P_SubjugateSwirls.P_SubjugateSwirls'"));
 	}
+
+	PlayBossSkillCameraShake(Target->GetActorLocation());
 }
 
 void ASevarog::CastSkill2()
 {
-	// Soul Siphon - GhostHand 捞棋飘 积己
+	//CustomTimeDilation = 4.f;
 
+	// Soul Siphon - GhostHand 捞棋飘 积己
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
@@ -326,3 +335,23 @@ void ASevarog::CastSkill2()
 		//Particle->SetSound(TEXT("SoundWave'/Game/Sound/Fire1.Fire1'"));
 	}
 }
+
+void ASevarog::SkillStart()
+{
+	switch (mSkillType)
+	{
+	case ESevarogSkill::Skill1:
+		break;
+	case ESevarogSkill::Skill2:
+		Skill2Start();
+		break;
+	case ESevarogSkill::Skill3:
+		break;
+	}
+}
+
+void ASevarog::Skill2Start()
+{
+	CustomTimeDilation = 0.1f;
+}
+

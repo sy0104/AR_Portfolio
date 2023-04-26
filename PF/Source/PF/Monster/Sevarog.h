@@ -5,6 +5,12 @@
 #include "Monster.h"
 #include "Sevarog.generated.h"
 
+enum class ESevarogSkill : uint8
+{
+	Skill1,
+	Skill2,
+	Skill3
+};
 
 UCLASS()
 class PF_API ASevarog : public AMonster
@@ -29,7 +35,14 @@ public:
 	virtual void CastSkill1();
 	virtual void CastSkill2();
 
+	virtual void SkillStart();
+
 private:
+	void Skill2Start();
+
+private:
+	ESevarogSkill	mSkillType;
+
 	FVector		CastLoc;
 	FVector		CastForward;
 };

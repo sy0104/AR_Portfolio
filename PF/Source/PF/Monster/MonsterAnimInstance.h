@@ -98,6 +98,9 @@ public:
 	void AnimNotify_CastSkill2();
 
 	UFUNCTION()
+	void AnimNotify_SkillStart();
+
+	UFUNCTION()
 	void AnimNotify_SkillEnd();
 
 	UFUNCTION()

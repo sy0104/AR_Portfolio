@@ -50,6 +50,8 @@ public:
 	virtual void CastSkill1();
 	virtual void CastSkill2();
 
+	virtual void SkillStart();
+
 public:
 	void OnDissolve();
 	void DestroyWidgetComponent();
@@ -57,6 +59,9 @@ public:
 protected:
 	virtual void CheckAttackDelayTime(float DeltaTime);
 	virtual void CheckUseSkill();
+
+public:
+	void PlayBossSkillCameraShake(FVector Location);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
@@ -67,6 +72,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UWidgetComponent*	mWidgetComponent;
+
+	// Camera Shake
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component, meta = (AllowPrivateAccess = true))
+	TSubclassOf<UCameraShakeBase>	mBossSkillCameraShake;
 
 protected:
 	class UMonsterAnimInstance*		mAnimInst;
@@ -277,6 +286,11 @@ public:
 	void SetAttackDelay(bool AttackDelay)
 	{
 		mAttackDelay = AttackDelay;
+	}
+
+	void SetTimeDilation(float TimeDilation)
+	{
+		CustomTimeDilation = TimeDilation;
 	}
 
 public:
