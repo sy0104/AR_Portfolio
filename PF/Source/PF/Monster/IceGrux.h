@@ -5,9 +5,12 @@
 #include "Monster.h"
 #include "IceGrux.generated.h"
 
-/**
- * 
- */
+enum class EIceGruxSkill : uint8
+{
+	Skill1,
+	Skill2
+};
+
 UCLASS()
 class PF_API AIceGrux : public AMonster
 {

@@ -23,6 +23,9 @@ AFireGrux::AFireGrux()
 	Mtrl.Index = 0;
 
 	mDissolveMtrlIndexArray.Add(Mtrl);
+
+	mSkillNameArray.Add(TEXT("FireGruxSkill1"));
+	mSkillNameArray.Add(TEXT("FireGruxSkill2"));
 }
 
 void AFireGrux::BeginPlay()
@@ -108,18 +111,18 @@ void AFireGrux::Skill1()
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
+	int32 SkillNum = (int32)EFireGruxSkill::Skill1;
+	mMonsterInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
+
 	mAttackDelayTime = 1.5f;
-	mMonsterInfo.AttackDistance = 250.f;
 
 	FActorSpawnParameters SpawnParam;
-	SpawnParam.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Effect
 	AParticleNiagara* Particle =
 		GetWorld()->SpawnActor<AParticleNiagara>(
-			GetActorLocation() + GetActorForwardVector() * 150.f, 
-			GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 150.f, GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Explosion/NS_Explosion_Sand_2.NS_Explosion_Sand_2'"));
 
@@ -142,13 +145,27 @@ void AFireGrux::Skill1()
 
 			for (int32 i = 0; i < Count; ++i)
 			{
+				AParticleCascade* ImpactParticle =
+					GetWorld()->SpawnActor<AParticleCascade>(
+						CollisionResult[i].ImpactPoint,
+						CollisionResult[i].ImpactNormal.Rotation(), SpawnParam);
+
+				ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonGrux/FX/Particles/Abilities/Primary/FX/P_Grux_Melee_ShockwaveImpact.P_Grux_Melee_ShockwaveImpact'"));
+
+				int32 OptionCount = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+				float DamageRatio = 0.f;
+
+				for (int32 j = 0; j < OptionCount; ++j)
+				{
+					if (mSkillDataArray[SkillNum].SkillOptionArray[j].Type == ESkillOptionType::Damage)
+						DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
+				}
+
 				CollisionResult[i].GetActor()->TakeDamage(
-					(float)mMonsterInfo.AttackPoint,
-					FDamageEvent(), GetController(), this);
+					(float)mMonsterInfo.AttackPoint * DamageRatio, FDamageEvent(), GetController(), this);
 			}
 		}
 	}
-
 }
 
 void AFireGrux::Skill2()
@@ -156,13 +173,13 @@ void AFireGrux::Skill2()
 	AAIController* MonsterController = Cast<AAIController>(GetController());
 	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
+	int32 SkillNum = (int32)EFireGruxSkill::Skill2;
+	mMonsterInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
+
 	mAttackDelayTime = 2.f;
-	mMonsterInfo.AttackDistance = 1000.f;
 
-	FActorSpawnParameters	SpawnParam;
-
-	SpawnParam.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Skill
 	ASkillProjectile* Skill =
@@ -170,17 +187,10 @@ void AFireGrux::Skill2()
 			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
 
 	Skill->SetNiagara(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Laser/NS_Laser_3.NS_Laser_3'"));
-	Skill->SetCollisionProfile(TEXT("PlayerTrigger"));
+	Skill->SetCollisionProfile(TEXT("MonsterAttack"));
 	Skill->SetLifeSpan(4.f);
 	Skill->GetProjectile()->InitialSpeed = 500.f;
 	Skill->mOnSkillEnd.AddDynamic(this, &AFireGrux::Skill2End);
-
-	//// Effect
-	//AParticleNiagara* Particle =
-	//	GetWorld()->SpawnActor<AParticleNiagara>(
-	//		GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
-
-	//Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Impact/NS_Impact_Metal_1.NS_Impact_Metal_1'"));
 }
 
 void AFireGrux::Skill3()
@@ -198,17 +208,33 @@ void AFireGrux::UnPossessed()
 	Super::UnPossessed();
 }
 
-void AFireGrux::Skill1End(ASkillActor* SkillActor, const FHitResult& Hit)
-{
-	Hit.GetActor()->TakeDamage(100.f, FDamageEvent(), GetController(), this);
-
-	//SkillActor->Destroy();
-}
-
 void AFireGrux::Skill2End(ASkillActor* SkillActor, const FHitResult& Hit)
 {
-	Hit.GetActor()->TakeDamage(200.f, FDamageEvent(), GetController(), this);
+	// Effect
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	//SkillActor->Destroy();
+	AParticleNiagara* Particle =
+		GetWorld()->SpawnActor<AParticleNiagara>(
+			Hit.GetActor()->GetActorLocation(), Hit.GetActor()->GetActorRotation(), SpawnParam);
+
+	Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Explosion/NS_Explosion_C4_2.NS_Explosion_C4_2'"));
+
+	// Damage
+	int32 SkillNum = (int32)EFireGruxSkill::Skill2;
+
+	int32 Count = mSkillDataArray[SkillNum].SkillOptionArray.Num();
+	float DamageRatio = 0.f;
+
+	for (int32 i = 0; i < Count; ++i)
+	{
+		if (mSkillDataArray[SkillNum].SkillOptionArray[i].Type == ESkillOptionType::Damage)
+			DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[i].Option;
+	}
+
+	Hit.GetActor()->TakeDamage((float)mMonsterInfo.AttackPoint * DamageRatio,
+		FDamageEvent(), GetController(), this);
+
+	SkillActor->Destroy();
 }
 

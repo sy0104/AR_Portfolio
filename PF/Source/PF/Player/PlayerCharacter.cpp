@@ -175,7 +175,7 @@ void APlayerCharacter::BeginPlay()
 	}
 
 
-	// Skill
+	// Player Skill
 	int32 SkillCount = mSkillNameArray.Num();
 
 	for (int32 i = 0; i < SkillCount; ++i)
@@ -187,10 +187,7 @@ void APlayerCharacter::BeginPlay()
 		SkillInfo.Type = Data->Type;
 		SkillInfo.System = Data->System;
 		SkillInfo.SkillName = Data->SkillName;
-		//SkillInfo.Description = Data->Description;
 		SkillInfo.SkillOptionArray = Data->SkillOptionArray;
-
-		//SkillInfo.Duration = 0.f;
 		SkillInfo.Distance = Data->Distance;
 		SkillInfo.MP = Data->MP;
 

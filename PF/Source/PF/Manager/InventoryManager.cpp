@@ -212,30 +212,4 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 		NewData->SetItemCount(1);
 		TileView->AddItem(NewData);
 	}
-
-	UpdateInventoryItems(TileViewItems);
-}
-
-void UInventoryManager::SaveInventory()
-{
-	UPFSaveGame* SaveGame = NewObject<UPFSaveGame>();
-
-	UInventoryBase* InventoryBase = NewObject<UInventoryBase>();
-	UTileView* TileView = InventoryBase->GetTileView();
-
-	if (IsValid(TileView))
-	{
-		TArray<UObject*> TileViewItems = TileView->GetListItems();
-		//SaveGame->mInven = TileViewItems;
-
-		int32 Count = TileViewItems.Num();
-		SaveGame->mInvenSize = Count;
-
-		for (int i = 0; i < Count; ++i)
-		{
-			FSaveItemInfo SaveItem;
-			UItemDataBase* Item = Cast<UItemDataBase>(TileView->GetItemAt(i));
-			SaveGame->mInven.Add(Item);
-		}
-	}
 }

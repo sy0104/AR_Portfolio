@@ -40,19 +40,9 @@ public:
 	const FSkillData* FindPlayerSkillTable(const FName& Name);
 
 public:
-	void SetIntentoryItems(TArray<UObject*> Items)
-	{
-		mInventory->mInventoryItems = Items;
-	}
-
 	void SetSaveInven(TArray<FSaveItemInfo> Inven)
 	{
 		mSaveInven = Inven;
-	}
-
-	TArray<UObject*> GetInventoryItems()
-	{
-		return mInventory->mInventoryItems;
 	}
 
 	TArray<FSaveItemInfo> GetSaveInven()

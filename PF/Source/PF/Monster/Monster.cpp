@@ -107,6 +107,24 @@ void AMonster::BeginPlay()
 
 	mAnimInst = Cast<UMonsterAnimInstance>(GetMesh()->GetAnimInstance());
 
+	// Monster Skill
+	int32 SkillCount = mSkillNameArray.Num();
+
+	for (int32 i = 0; i < SkillCount; ++i)
+	{
+		const FSkillData* Data = GameInst->FindMonsterSkillTable(mSkillNameArray[i]);
+
+		FMonsterSkillInfo SkillInfo;
+
+		SkillInfo.Type = Data->Type;
+		SkillInfo.System = Data->System;
+		SkillInfo.SkillName = Data->SkillName;
+		SkillInfo.SkillOptionArray = Data->SkillOptionArray;
+		SkillInfo.Distance = Data->Distance;
+
+		mSkillDataArray.Add(SkillInfo);
+	}
+
 	// Widget Component Init
 	UMonsterHPBase* HPWidget = Cast<UMonsterHPBase>(mWidgetComponent->GetWidget());
 

@@ -40,10 +40,4 @@ private:
 
 	UPROPERTY()
 	float			mExpRatio;
-
-	UPROPERTY()
-	int32				mInvenSize;
-
-	UPROPERTY()
-	TArray<UItemDataBase*>	mInven;
 };

@@ -26,12 +26,12 @@ UPFGameInstance::UPFGameInstance()
 	if (MonsterTable.Succeeded())
 		mMonsterTable = MonsterTable.Object;
 
-	//// Monster Skill Table
-	//static ConstructorHelpers::FObjectFinder<UDataTable> SkillfInfoTable(
-	//	TEXT("DataTable'/Game/Skill/DTMonsterSkill.DTMonsterSkill'"));
-	//
-	//if (SkillfInfoTable.Succeeded())
-	//	mMonsterSkillInfoTable = SkillfInfoTable.Object;
+	// Monster Skill Table
+	static ConstructorHelpers::FObjectFinder<UDataTable> SkillfInfoTable(
+		TEXT("DataTable'/Game/Skill/DTMonsterSkill.DTMonsterSkill'"));
+	
+	if (SkillfInfoTable.Succeeded())
+		mMonsterSkillInfoTable = SkillfInfoTable.Object;
 
 	// Player Skill Table
 	static ConstructorHelpers::FObjectFinder<UDataTable> PlayerSkillfInfoTable(

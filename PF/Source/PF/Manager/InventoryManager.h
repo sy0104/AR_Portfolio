@@ -38,27 +38,11 @@ public:
 
 	int32					mPrevTime;
 
-	TArray<UObject*>		mInventoryItems;
 
 public:
 	FItemDataInfo* GetItemInfo(EItemID ItemID);
-	TArray<UObject*> GetInventoryItems()
-	{
-		return mInventoryItems;
-	}
 
 public:
 	void SetItemTable(UDataTable* Table);
 	void AddItem(FItemDataInfo* Item);
-	void SaveInventory();
-
-	// 레벨 전환 시 아이템 저장
-	
-	
-	// 아이템 획득했을 때 리스트 업데이트
-	void UpdateInventoryItems(TArray<UObject*>& ItemArray)
-	{
-		//mInventoryItems.Empty();
-		mInventoryItems = ItemArray;
-	}
 };

@@ -5,9 +5,12 @@
 #include "Monster.h"
 #include "FireGrux.generated.h"
 
-/**
- * 
- */
+enum class EFireGruxSkill : uint8
+{
+	Skill1,
+	Skill2
+};
+
 UCLASS()
 class PF_API AFireGrux : public AMonster
 {
@@ -30,9 +33,6 @@ public:
 	virtual void UnPossessed();
 
 public:
-	UFUNCTION()
-	void Skill1End(class ASkillActor* SkillActor, const FHitResult& Hit);
-
 	UFUNCTION()
 	void Skill2End(class ASkillActor* SkillActor, const FHitResult& Hit);
 
