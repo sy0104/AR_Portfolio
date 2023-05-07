@@ -45,6 +45,12 @@ public:
 	//void SetItemDescOff(UObject* Item);
 
 public:
+	bool IsEquiped() const
+	{
+		return mEquipCheckImage->IsVisible();
+	}
+
+public:
 	UFUNCTION(BlueprintCallable)
 	void InitFromData(UObject* Data);
 };

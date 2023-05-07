@@ -30,9 +30,6 @@ private:
 	float			mCameraZoomMax;
 
 	UPROPERTY()
-	FEquipedItem	mEquipedItem;
-
-	UPROPERTY()
 	float			mHPRatio;
 
 	UPROPERTY()
@@ -40,4 +37,29 @@ private:
 
 	UPROPERTY()
 	float			mExpRatio;
+
+	UPROPERTY()
+	int32			mHPPotionCount;
+
+	UPROPERTY()
+	int32			mMPPotionCount;
+
+	UPROPERTY()
+	int32			mAttackPotionCount;
+
+	UPROPERTY()
+	int32			mArmorPotionCount;
+
+	//UPROPERTY()
+	//FEquipedItem	mEquipedItem;
+
+	UPROPERTY()
+	int32			mEquipedWeaponIndex;
+
+	UPROPERTY()
+	int32			mEquipedArmorIndex;
+
+	UPROPERTY()
+	int32			mEquipedAccesaryIndex;
+
 };

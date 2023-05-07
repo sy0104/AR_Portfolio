@@ -89,18 +89,25 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	mAnimInst = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
-	UInventoryManager::GetInst(GetWorld())->ShowInventory(false);
+	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	//UInventoryManager::GetInst(GetWorld())->ShowInventory(false);
 
 	// Read
 	FString FullPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/Save.txt");
-	TSharedPtr<FArchive> Reader = MakeShareable(
-		IFileManager::Get().CreateFileReader(*FullPath));
+	TSharedPtr<FArchive> Reader = MakeShareable(IFileManager::Get().CreateFileReader(*FullPath));
+
+	int32 WeaponIndex = -1, ArmorIndex = -1, AccesaryIndex = -1;
 
 	if (Reader.IsValid())
 	{
+		// Player Info
 		*Reader.Get() << mPlayerInfo.Name;
 		*Reader.Get() << mPlayerInfo.AttackPoint;
 		*Reader.Get() << mPlayerInfo.ArmorPoint;
@@ -117,14 +124,29 @@ void APlayerCharacter::BeginPlay()
 		*Reader.Get() << mCameraZoomMin;
 		*Reader.Get() << mCameraZoomMax;
 
-		*Reader.Get() << mEquipedItem.Weapon;
-		*Reader.Get() << mEquipedItem.Armor;
-		*Reader.Get() << mEquipedItem.Accesary;
-
 		*Reader.Get() << mHPRatio;
 		*Reader.Get() << mMPRatio;
 		*Reader.Get() << mExpRatio;
+
+		// Potion Count
+		int32 HPPotionCount, MPPotionCount, AttackPotionCount, ArmorPotionCount;
+
+		*Reader.Get() << HPPotionCount;
+		*Reader.Get() << MPPotionCount;
+		*Reader.Get() << AttackPotionCount;
+		*Reader.Get() << ArmorPotionCount;
+
+		MainHUD->SetHPPotionCount(HPPotionCount);
+		MainHUD->SetMPPotionCount(MPPotionCount);
+		MainHUD->SetAttackPotionCount(AttackPotionCount);
+		MainHUD->SetArmorPotionCount(ArmorPotionCount);
+
+		// Equiped Item Index
+		*Reader.Get() << mEquipedWeaponIndex;
+		*Reader.Get() << mEquipedArmorIndex;
+		*Reader.Get() << mEquipedAccesaryIndex;
 	}
+
 
 	// 나중에 직업 추가되면 데이터테이블로 제작
 	else
@@ -142,23 +164,23 @@ void APlayerCharacter::BeginPlay()
 		mPlayerInfo.Gold = 1000;
 		mPlayerInfo.MoveSpeed = 2000.f;
 		mPlayerInfo.AttackDistance = 200.f;
+
+		mEquipedWeaponIndex = -1;
+		mEquipedArmorIndex = -1;
+		mEquipedAccesaryIndex = -1;
 	}
 
 	// Inven Load
-	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
-
-	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
-
 	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
-	TArray<UObject*> ListItems = TileView->GetListItems();
 
 	if (IsValid(TileView))
 	{
+		TArray<UObject*> ListItems = TileView->GetListItems();
+
 		TArray<FSaveItemInfo> SaveItemArray = GameInst->GetSaveInven();
 
 		int32 Count = SaveItemArray.Num();
-		
+
 		for (int32 i = 0; i < Count; ++i)
 		{
 			EItemID ItemID = SaveItemArray[i].ID;
@@ -169,11 +191,44 @@ void APlayerCharacter::BeginPlay()
 
 			ItemData->SetItemInfo(ItemInfo);
 			ItemData->SetItemCount(ItemCount);
-			
 			TileView->AddItem(ItemData);
 		}
 	}
 
+	// Equip Item
+
+	if (IsValid(TileView))
+	{
+		if (mEquipedWeaponIndex != -1)
+		{
+			UObject* Weapon = TileView->GetItemAt(mEquipedWeaponIndex);
+
+			if (IsValid(Weapon))
+			{
+				EquipItem(Weapon);
+			}
+		}
+
+		if (mEquipedArmorIndex != -1)
+		{
+			UObject* Armor = TileView->GetItemAt(mEquipedArmorIndex);
+
+			if (IsValid(Armor))
+			{
+				EquipItem(Armor);
+			}
+		}
+
+		if (mEquipedAccesaryIndex != -1)
+		{
+			UObject* Accesary = TileView->GetItemAt(mEquipedAccesaryIndex);
+
+			if (IsValid(Accesary))
+			{
+				EquipItem(Accesary);
+			}
+		}
+	}
 
 	// Player Skill
 	int32 SkillCount = mSkillNameArray.Num();
@@ -234,6 +289,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Inventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::InventoryOn);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Stat"), EInputEvent::IE_Pressed, this, &APlayerCharacter::PlayerStatOnOff);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Cheat"), EInputEvent::IE_Pressed, this, &APlayerCharacter::CheatKey);
+	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("LevelUpCheat"), EInputEvent::IE_Pressed, this, &APlayerCharacter::LevelUpCheat);
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("Item"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ItemKey);
 
 	PlayerInputComponent->BindAction<APlayerCharacter>(TEXT("HPPotion"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HPPotionkey);
@@ -249,7 +305,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis<APlayerCharacter>(TEXT("CameraZoom"), this, &APlayerCharacter::CameraZoom);
 }
 
-float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
+float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
 	if (mUseSkill)
@@ -272,6 +328,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 		MainHUD->SetHP(0.f);
+
+		mDeath = true;
+		mAnimInst->Death();
 	}
 
 	else
@@ -522,10 +581,62 @@ void APlayerCharacter::JumpKey()
 
 void APlayerCharacter::InventoryOn()
 {
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+
+	if (IsValid(TileView))
+	{
+		TArray<UObject*> mTileViewItems = TileView->GetListItems();
+		int32 Count = mTileViewItems.Num();
+
+		for (int32 i = 0; i < Count; ++i)
+		{
+			if (i == mEquipedWeaponIndex || i == mEquipedArmorIndex || i == mEquipedAccesaryIndex)
+			{
+				UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
+				//UObject* EquipedItem =TileView->GetItemAt(i);
+				UInventoryItemBase* EquipedItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(EquipedItem));
+
+				if (IsValid(EquipedItemBase))
+				{
+					EquipedItemBase->SetEquip();
+				}
+			}
+		}
+	}
+
 	if (UInventoryManager::GetInst(GetWorld())->IsInventoryOpen())
 		UInventoryManager::GetInst(GetWorld())->ShowInventory(false);
+
 	else
+	{
+		// Set Equip
+
+		if (IsValid(TileView))
+		{
+			TArray<UObject*> mTileViewItems = TileView->GetListItems();
+			int32 Count = mTileViewItems.Num();
+
+			for (int32 i = 0; i < Count; ++i)
+			{
+				if (i == mEquipedWeaponIndex || i == mEquipedArmorIndex || i == mEquipedAccesaryIndex)
+				{
+					UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
+					//UObject* EquipedItem =TileView->GetItemAt(i);
+					UInventoryItemBase* EquipedItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(EquipedItem));
+
+					if (IsValid(EquipedItemBase))
+					{
+						EquipedItemBase->SetEquip();
+					}
+				}
+			}
+		}
+
 		UInventoryManager::GetInst(GetWorld())->ShowInventory(true);
+	}
 }
 
 void APlayerCharacter::PlayerStatOnOff()
@@ -655,6 +766,33 @@ void APlayerCharacter::LevelUp()
 	mExpRatio = 0.f;
 }
 
+void APlayerCharacter::LevelUpCheat()
+{
+	LevelUp();
+
+	UpdatePlayerInfoUI();
+}
+
+void APlayerCharacter::UpdatePlayerInfoUI()
+{
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	// PlayerInfo UI
+	MainHUD->SetHP(mHPRatio);
+	MainHUD->SetMP(mMPRatio);
+	MainHUD->SetExp(mExpRatio);
+	MainHUD->SetLevel(mPlayerInfo.Level);
+
+	// PlayerStat UI
+	MainHUD->SetPlayerStatAttackPoint(mPlayerInfo.AttackPoint);
+	MainHUD->SetPlayerStatArmorPoint(mPlayerInfo.ArmorPoint);
+	MainHUD->SetPlayerStatHP(mPlayerInfo.HP);
+	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
+	MainHUD->SetPlayerStatHPMax(mPlayerInfo.HPMax);
+	MainHUD->SetPlayerStatMPMax(mPlayerInfo.MPMax);
+}
+
 void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 {
 	// 버프 아이템 - 포션
@@ -676,8 +814,10 @@ void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 		MainHUD->SetHP(mHPRatio);
 		MainHUD->SetPlayerStatHP(mPlayerInfo.HP);
 		break;
+
 	case EItemID::PT_MP_Potion:
 		mPlayerInfo.MP += ItemInfo->MPHeal;
+
 		if (mPlayerInfo.MP >= mPlayerInfo.MPMax)
 			mPlayerInfo.MP = mPlayerInfo.MPMax;
 
@@ -687,12 +827,14 @@ void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 		MainHUD->SetMP(mMPRatio);
 		MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
 		break;
+
 	case EItemID::PT_Attack_Potion:
 		mAttackBuff.bBuffOn = true;
 		mAttackBuff.BuffValue = ItemInfo->AttackBuff;
 		mAttackBuff.OriginStat = mPlayerInfo.AttackPoint;
 		MainHUD->SetAttackBuffText((int32)ItemInfo->AttackBuff);
 		break;
+
 	case EItemID::PT_Armor_Potion:
 		mArmorBuff.bBuffOn = true;
 		mArmorBuff.BuffValue = ItemInfo->ArmorBuff;
@@ -700,6 +842,8 @@ void APlayerCharacter::UsePotion(FItemDataInfo* ItemInfo)
 		MainHUD->SetArmorBuffText((int32)ItemInfo->ArmorBuff);
 		break;
 	}
+
+
 }
 
 void APlayerCharacter::InitUI()
@@ -720,20 +864,18 @@ void APlayerCharacter::InitUI()
 		MainHUD->SetPlayerStatUI(mPlayerInfo);
 		MainHUD->SetPlayerStatVisible(false);
 
-		// Potion Info UI
-		MainHUD->SetHPPotionCount(0);
-		MainHUD->SetMPPotionCount(0);
-		MainHUD->SetAttackPotionCount(0);
-		MainHUD->SetArmorPotionCount(0);
+		//// Potion Info UI
+		//MainHUD->SetHPPotionCount(0);
+		//MainHUD->SetMPPotionCount(0);
+		//MainHUD->SetAttackPotionCount(0);
+		//MainHUD->SetArmorPotionCount(0);
 	}
-
 }
 
 void APlayerCharacter::SetPotionInfo(FItemDataInfo* ItemInfo)
 {
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
-
 
 	if (ItemInfo->ItemCount == 1)
 	{
@@ -784,25 +926,100 @@ void APlayerCharacter::SavePlayer()
 {
 	UPFSaveGame* SaveGame = NewObject<UPFSaveGame>();
 
+	// Player Info
 	SaveGame->mPlayerInfo = mPlayerInfo;
 	SaveGame->mCameraZoomMin = mCameraZoomMin;
 	SaveGame->mCameraZoomMax = mCameraZoomMax;
-	SaveGame->mEquipedItem = mEquipedItem;
 	SaveGame->mHPRatio = mHPRatio;
 	SaveGame->mMPRatio = mMPRatio;
 	SaveGame->mExpRatio = mExpRatio;
 
+	// Potion Count
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	int32 HPPotionCount, MPPotionCount, AttackPotionCount, ArmorPotionCount;
+
+	FItemDataInfo* Potion = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
+	HPPotionCount = Potion->ItemCount;
+
+	Potion = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_MP_Potion);
+	MPPotionCount = Potion->ItemCount;
+
+	Potion = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_Attack_Potion);
+	AttackPotionCount = Potion->ItemCount;
+
+	Potion = UInventoryManager::GetInst(GetWorld())->GetItemInfo(EItemID::PT_HP_Potion);
+	ArmorPotionCount = Potion->ItemCount;
+
+	SaveGame->mHPPotionCount = Potion->ItemCount;
+	SaveGame->mMPPotionCount = Potion->ItemCount;
+	SaveGame->mAttackPotionCount = Potion->ItemCount;
+	SaveGame->mArmorPotionCount = Potion->ItemCount;
+
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+
+	mEquipedWeaponIndex = -1;
+	mEquipedArmorIndex = -1;
+	mEquipedAccesaryIndex = -1;
+
+	if (IsValid(TileView))
+	{
+		if (mEquipedItem.Weapon)
+			mEquipedWeaponIndex = TileView->GetIndexForItem(mEquipedItem.Weapon);
+
+		if (mEquipedItem.Armor)
+			mEquipedArmorIndex = TileView->GetIndexForItem(mEquipedItem.Armor);
+
+		if (mEquipedItem.Accesary)
+			mEquipedAccesaryIndex = TileView->GetIndexForItem(mEquipedItem.Accesary);
+	}
+
+	SaveGame->mEquipedWeaponIndex = mEquipedWeaponIndex;
+	SaveGame->mEquipedArmorIndex = mEquipedArmorIndex;
+	SaveGame->mEquipedAccesaryIndex = mEquipedAccesaryIndex;
+
 	UGameplayStatics::SaveGameToSlot(SaveGame, TEXT("Save"), 0);
 
-	APFGameModeBase* GameMode = GetWorld()->GetAuthGameMode<APFGameModeBase>();
-
+	// Player Info
 	GameMode->GetSaveGame()->mPlayerInfo = mPlayerInfo;
 	GameMode->GetSaveGame()->mCameraZoomMin = mCameraZoomMin;
 	GameMode->GetSaveGame()->mCameraZoomMax = mCameraZoomMax;
-	GameMode->GetSaveGame()->mEquipedItem = mEquipedItem;
 	GameMode->GetSaveGame()->mHPRatio = mHPRatio;
 	GameMode->GetSaveGame()->mMPRatio = mMPRatio;
 	GameMode->GetSaveGame()->mExpRatio = mExpRatio;
+
+	// Potion Count
+	GameMode->GetSaveGame()->mHPPotionCount = HPPotionCount;
+	GameMode->GetSaveGame()->mMPPotionCount = MPPotionCount;
+	GameMode->GetSaveGame()->mAttackPotionCount = AttackPotionCount;
+	GameMode->GetSaveGame()->mArmorPotionCount = ArmorPotionCount;
+
+	// Equiped Item Index
+	GameMode->GetSaveGame()->mEquipedWeaponIndex = mEquipedWeaponIndex;
+	GameMode->GetSaveGame()->mEquipedArmorIndex = mEquipedArmorIndex;
+	GameMode->GetSaveGame()->mEquipedAccesaryIndex = mEquipedAccesaryIndex;
+
+	//// Equiped Item
+	//UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+	//GameInst->SetEquipedItem(mEquipedItem);
+}
+
+void APlayerCharacter::Respawn()
+{
+	mDeath = false;
+
+	mAnimInst->SetPlayerAnimType(EPlayerAnimType::Ground);
+
+	mPlayerInfo.HP = mPlayerInfo.HPMax;
+	mPlayerInfo.MP = mPlayerInfo.MPMax;
+
+	// UI
+	mHPRatio = 1.f;
+	mMPRatio = 1.f;
+	mExpRatio = 0.f;
+
+	UpdatePlayerInfoUI();
 }
 
 void APlayerCharacter::StartSkill()
@@ -881,8 +1098,7 @@ void APlayerCharacter::AttackBuffOn(float DeltaTime)
 
 	else
 	{
-		APFGameModeBase* GameMode = 
-			Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
 		MainHUD->SetAttackBuffOff(mAttackBuff.BuffValue);
@@ -924,6 +1140,14 @@ void APlayerCharacter::EquipItem(UObject* Item)
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
 	FItemDataInfo* ItemInfo = Cast<UItemDataBase>(Item)->GetItemInfo();
+
+	UItemDataBase* ItemDataBase = Cast<UItemDataBase>(Item);
+	UInventoryItemBase* InventoryItemBase = Cast<UInventoryItemBase>(ItemDataBase);
+
+	if (IsValid(InventoryItemBase))
+	{
+		InventoryItemBase->SetEquip();
+	}
 
 	// 아이템 장착
 	switch (ItemInfo->ItemType)

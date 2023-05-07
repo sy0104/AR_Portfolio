@@ -6,6 +6,7 @@
 #include "InventoryBase.h"
 #include "PotionBase.h"
 #include "PlayerStatBase.h"
+#include "ContinueBase.h"
 
 void UMainHUDBase::NativeConstruct()
 {
@@ -15,6 +16,7 @@ void UMainHUDBase::NativeConstruct()
 	mInventory = Cast<UInventoryBase>(GetWidgetFromName(FName(TEXT("Inventory"))));
 	mPotionInfo = Cast<UPotionBase>(GetWidgetFromName(FName(TEXT("PotionInfo"))));
 	mPlayerStat = Cast<UPlayerStatBase>(GetWidgetFromName(FName(TEXT("PlayerStat"))));
+	mContinue = Cast<UContinueBase>(GetWidgetFromName(FName(TEXT("Continue"))));
 }
 
 void UMainHUDBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -156,6 +158,15 @@ void UMainHUDBase::SetAttackPotionCount(int32 Count)
 void UMainHUDBase::SetArmorPotionCount(int32 Count)
 {
 	mPotionInfo->SetArmorPointCount(Count);
+}
+
+void UMainHUDBase::SetContinueVisible(bool Visible)
+{
+	if (Visible)
+		mContinue->SetVisibility(ESlateVisibility::Visible);
+
+	else
+		mContinue->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainHUDBase::UpdatePotionCount(EItemID ID)

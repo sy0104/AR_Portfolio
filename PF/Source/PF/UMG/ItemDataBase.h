@@ -30,7 +30,6 @@ public:
 		return mItemInfo->ID;
 	}
 
-
 public:
 	void SetItemInfo(FItemDataInfo* ItemInfo)
 	{

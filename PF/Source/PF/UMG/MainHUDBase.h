@@ -25,6 +25,7 @@ private:
 	class UInventoryBase*		mInventory;
 	class UPotionBase*			mPotionInfo;
 	class UPlayerStatBase*		mPlayerStat;
+	class UContinueBase*		mContinue;
 
 	// PlayerInfoBase
 public:
@@ -65,6 +66,10 @@ public:
 	void SetMPPotionCount(int32 Count);
 	void SetAttackPotionCount(int32 Count);
 	void SetArmorPotionCount(int32 Count);
+
+	// Continue
+public:
+	void SetContinueVisible(bool Visible);
 
 public:
 	void UpdatePotionCount(EItemID ID);

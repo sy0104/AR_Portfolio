@@ -42,7 +42,7 @@ void UInventoryBase::ClickItem(UObject* Item)
 	if (!IsValid(TileView))
 		return;
 
-	UInventoryItemBase* NewItem = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(Item));
+	UInventoryItemBase* NewItem = Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetEntryWidgetFromItem(Item));
 	FItemDataInfo* ItemInfo = Cast<UItemDataBase>(Item)->GetItemInfo();
 
 	switch (ItemInfo->ItemType)
@@ -50,6 +50,7 @@ void UInventoryBase::ClickItem(UObject* Item)
 	case EItemType::Potion:
 		PlayerCharacter->UsePotion(ItemInfo);
 		break;
+
 	case EItemType::Equip_Weapon:
 		if (PlayerCharacter->IsEquipedWeapon())
 		{
@@ -65,8 +66,9 @@ void UInventoryBase::ClickItem(UObject* Item)
 
 		NewItem->SetEquip();
 		PlayerCharacter->EquipItem(Item);
-
+		PlayerCharacter->SetEquipedWeaponIndex(TileView->GetIndexForItem(Item));
 		break;
+
 	case EItemType::Equip_Armor:
 		if (PlayerCharacter->IsEquipedArmor())
 		{
@@ -80,8 +82,9 @@ void UInventoryBase::ClickItem(UObject* Item)
 
 		NewItem->SetEquip();
 		PlayerCharacter->EquipItem(Item);
-
+		PlayerCharacter->SetEquipedArmorIndex(TileView->GetIndexForItem(Item));
 		break;
+
 	case EItemType::Equip_Accesary:
 		if (PlayerCharacter->IsEquipedAccesary())
 		{
@@ -95,25 +98,57 @@ void UInventoryBase::ClickItem(UObject* Item)
 
 		NewItem->SetEquip();
 		PlayerCharacter->EquipItem(Item);
-
+		PlayerCharacter->SetEquipedArmorIndex(TileView->GetIndexForItem(Item));
 		break;
 	}
 
+	// UI
 	if (ItemInfo->ItemType == EItemType::Potion)
 	{
 		if (ItemInfo->ItemCount == 1)
 		{
 			ItemInfo->ItemCount = 0;
 			mTileView->RemoveItem(Item);
+
+			switch (ItemInfo->ID)
+			{
+			case EItemID::PT_HP_Potion:
+				MainHUD->SetHPPotionCount(0);
+				break;
+			case EItemID::PT_MP_Potion:
+				MainHUD->SetMPPotionCount(0);
+				break;
+			case EItemID::PT_Attack_Potion:
+				MainHUD->SetAttackPotionCount(0);
+				break;
+			case EItemID::PT_Armor_Potion:
+				MainHUD->SetArmorPotionCount(0);
+				break;
+			}
 		}
 
 		else
 		{
 			ItemInfo->ItemCount--;
 			NewItem->SetItemCountText(ItemInfo->ItemCount);
+
+			switch (ItemInfo->ID)
+			{
+			case EItemID::PT_HP_Potion:
+				MainHUD->SetHPPotionCount(ItemInfo->ItemCount);
+				break;
+			case EItemID::PT_MP_Potion:
+				MainHUD->SetMPPotionCount(ItemInfo->ItemCount);
+				break;
+			case EItemID::PT_Attack_Potion:
+				MainHUD->SetAttackPotionCount(ItemInfo->ItemCount);
+				break;
+			case EItemID::PT_Armor_Potion:
+				MainHUD->SetArmorPotionCount(ItemInfo->ItemCount);
+				break;
+			}
 		}
 	}
-
 }
 
 void UInventoryBase::UnEquipItem(UObject* Item)
@@ -182,6 +217,7 @@ void UInventoryBase::ShowItemDesc(UObject* Item, bool IsHovered, FVector2D Mouse
 
 void UInventoryBase::UpdatePotionCount(EItemID ID)
 {
+	// 코드 안전하게 바꿔야됨
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
@@ -189,8 +225,6 @@ void UInventoryBase::UpdatePotionCount(EItemID ID)
 
 	int32 Count = TileViewItems.Num();
 	int32 ItemCount;
-
-	
 
 	for (int32 i = 0; i < Count; ++i)
 	{

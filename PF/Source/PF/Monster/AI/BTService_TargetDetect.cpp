@@ -40,14 +40,14 @@ void UBTService_TargetDetect::TickNode(UBehaviorTreeComponent& OwnerComp,
 		ECollisionChannel::ECC_GameTraceChannel9,
 		FCollisionShape::MakeSphere(Info.TraceDistance), param);
 
-#if ENABLE_DRAW_DEBUG
-
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugSphere(GetWorld(), Monster->GetActorLocation(),
-		Info.TraceDistance, 20, DrawColor, false, 0.3f);
-
-#endif
+//#if ENABLE_DRAW_DEBUG
+//
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugSphere(GetWorld(), Monster->GetActorLocation(),
+//		Info.TraceDistance, 20, DrawColor, false, 0.3f);
+//
+//#endif
 
 	if (CollisionEnable)
 	{

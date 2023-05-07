@@ -14,6 +14,7 @@ enum class EPlayerAnimType : uint8
 	Fall,
 	Hit,
 	Ultimate,
+	Respawn,
 	Death
 };
 
@@ -47,6 +48,7 @@ public:
 	void Jump();
 	void UseSkill(int32 SkillNumber);
 	void Ultimate();
+	void Death();
 	void SkillETarget();
 
 protected:

@@ -7,8 +7,6 @@
 #include "PlayerCharacter.generated.h"
 
 
-
-
 UCLASS()
 class PF_API APlayerCharacter : public ACharacter
 {
@@ -83,8 +81,12 @@ protected:
 	virtual void InitUI();
 	virtual void SetPotionInfo(FItemDataInfo* ItemInfo);
 
+	void LevelUpCheat();
+	void UpdatePlayerInfoUI();
+
 public:
 	virtual void SavePlayer();
+	virtual void Respawn();
 	virtual void StartSkill();
 
 	void PlaySkillCameraShake();
@@ -149,6 +151,11 @@ protected:
 	FPotionBuff			mArmorBuff;
 
 	FEquipedItem		mEquipedItem;
+
+	bool				mFirstOpenInventory;
+	int32				mEquipedWeaponIndex;
+	int32				mEquipedArmorIndex;
+	int32				mEquipedAccesaryIndex;
 
 public:
 	const FPlayerInfo& GetPlayerInfo() const
@@ -236,6 +243,11 @@ public:
 		mDash = Dash;
 	}
 
+	void SetDeath(bool Death)
+	{
+		mDeath = Death;
+	}
+
 	void SetTimeDilation(float TimeDilation)
 	{
 		CustomTimeDilation = TimeDilation;
@@ -248,6 +260,21 @@ public:
 		mCameraZoomIn = CameraZoomIn;
 		mSkillCameraZoomMin = Min;
 		mSkillCameraZoomMax = Max;
+	}
+
+	void SetEquipedWeaponIndex(int32 Index)
+	{
+		mEquipedWeaponIndex = Index;
+	}
+
+	void SetEquipedArmorIndex(int32 Index)
+	{
+		mEquipedArmorIndex = Index;
+	}
+
+	void SetEquipedAccesaryIndex(int32 Index)
+	{
+		mEquipedAccesaryIndex = Index;
 	}
 
 	void SetExp(float Ratio);

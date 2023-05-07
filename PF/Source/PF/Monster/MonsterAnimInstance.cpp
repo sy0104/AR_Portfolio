@@ -51,7 +51,6 @@ void UMonsterAnimInstance::Attack()
 	//	Montage_SetPosition(mAttackMontage, 0.f);
 	//	Montage_Play(mAttackMontage);
 	//}
-
 }
 
 void UMonsterAnimInstance::Hit()

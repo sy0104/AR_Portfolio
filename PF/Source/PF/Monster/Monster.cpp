@@ -325,9 +325,12 @@ void AMonster::OnDissolve()
 
 void AMonster::DestroyWidgetComponent()
 {
-	mWidgetComponent->DetachFromParent();
-	mWidgetComponent->DestroyComponent();
-	mWidgetComponent = nullptr;
+	if (IsValid(mWidgetComponent))
+	{
+		mWidgetComponent->DetachFromParent();
+		mWidgetComponent->DestroyComponent();
+		mWidgetComponent = nullptr;
+	}
 }
 
 void AMonster::CheckAttackDelayTime(float DeltaTime)

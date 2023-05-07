@@ -186,8 +186,7 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 
 	if (bCheck)	// 중복된 아이템이 있는 경우
 	{
-		UItemDataBase* IndexItem;
-		IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(Index));
+		UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(Index));
 
 		if (IsValid(IndexItem))
 		{
@@ -195,8 +194,7 @@ void UInventoryManager::AddItem(FItemDataInfo* Item)
 			IndexItem->SetItemCount(ItemCount + 1);
 
 			// UI에 표시된 아이탬 개수 변경
-			UInventoryItemBase* ItemBase =
-				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(IndexItem));
+			UInventoryItemBase* ItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(IndexItem));
 
 			if (IsValid(ItemBase))
 				ItemBase->SetItemCountText(ItemCount + 1);

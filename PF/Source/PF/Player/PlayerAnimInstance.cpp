@@ -4,6 +4,8 @@
 #include "PlayerAnimInstance.h"
 #include "PlayerCharacter.h"
 #include "Countess.h"
+#include "../UMG/MainHUDBase.h"
+#include "../PFGameModeBase.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
 {
@@ -98,6 +100,13 @@ void UPlayerAnimInstance::Ultimate()
 
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 	PlayerCharacter->SetUseSkill(true);
+}
+
+void UPlayerAnimInstance::Death()
+{
+	mAnimType = EPlayerAnimType::Death;
+
+
 }
 
 void UPlayerAnimInstance::SkillETarget()
@@ -244,6 +253,17 @@ void UPlayerAnimInstance::AnimNotify_HitEnd()
 void UPlayerAnimInstance::AnimNotify_DeathEnd()
 {
 	// ¸®½ºÆù
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->SetHidden(true);
+
+		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+		MainHUD->SetContinueVisible(true);
+	}
 }
 
 // Shinbi

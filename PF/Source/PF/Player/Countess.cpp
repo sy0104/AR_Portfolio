@@ -93,14 +93,14 @@ void ACountess::NormalAttackCheck()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
 		FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-		mPlayerInfo.AttackDistance / 2.f, 50.f,
-		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-		DrawColor, false, 0.5f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//		mPlayerInfo.AttackDistance / 2.f, 50.f,
+//		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//		DrawColor, false, 0.5f);
+//#endif
 
 	if (CollisionEnable)
 	{
@@ -182,14 +182,14 @@ void ACountess::SkillQ()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
 		FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-		mPlayerInfo.AttackDistance / 2.f, 50.f,
-		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-		DrawColor, false, 0.5f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//		mPlayerInfo.AttackDistance / 2.f, 50.f,
+//		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//		DrawColor, false, 0.5f);
+//#endif
 
 	if (CollisionEnable)
 	{
@@ -230,7 +230,7 @@ void ACountess::SkillE()
 
 	AParticleCascade* EffectParticle =
 		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), Rotation, SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, Rotation, SpawnParam);
 
 	EffectParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_SegmentFX.p_RollingDark_SegmentFX'"));
 
@@ -240,7 +240,7 @@ void ACountess::SkillE()
 
 	AParticleCascade* Particle =
 		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
 
@@ -255,14 +255,14 @@ void ACountess::SkillE()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
 		FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-		mPlayerInfo.AttackDistance / 2.f, 50.f,
-		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-		DrawColor, false, 0.5f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//		mPlayerInfo.AttackDistance / 2.f, 50.f,
+//		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//		DrawColor, false, 0.5f);
+//#endif
 
 	if (CollisionEnable)
 	{
@@ -342,14 +342,14 @@ void ACountess::SkillR()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
 		FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-		mPlayerInfo.AttackDistance / 2.f, 50.f,
-		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-		DrawColor, false, 0.5f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	FColor DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//		mPlayerInfo.AttackDistance / 2.f, 50.f,
+//		FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//		DrawColor, false, 0.5f);
+//#endif
 
 	if (CollisionEnable)
 	{
@@ -377,7 +377,6 @@ void ACountess::SkillR()
 				FDamageEvent(), GetController(), this);
 		}
 	}
-
 }
 
 void ACountess::SkillRM()
@@ -397,16 +396,16 @@ void ACountess::SkillRM()
 		FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel6,
 		FCollisionShape::MakeSphere(50.f), param);
 
-	
-#if ENABLE_DRAW_DEBUG
-		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-
-		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-			mPlayerInfo.AttackDistance / 2.f,
-			50.f,
-			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-			DrawColor, false, 0.5f);
-#endif
+//	
+//#if ENABLE_DRAW_DEBUG
+//		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
+//
+//		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
+//			mPlayerInfo.AttackDistance / 2.f,
+//			50.f,
+//			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
+//			DrawColor, false, 0.5f);
+//#endif
 
 
 
@@ -467,12 +466,7 @@ void ACountess::SkillQKey()
 		mReturnEnable = false;
 		mCurTime = 0.f;
 
-		//UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetWorld()->GetFirstPlayerController(), mReturnPos);
-		
 		LaunchCharacter(-mReturnRotation * 20.f * 700.f, true, true);
-
-		//const FVector ForwardDir = GetActorRotation().Vector();
-		//LaunchCharacter(-ForwardDir * 20.f * 700.f, true, true);
 
 		FActorSpawnParameters SpawnParam;
 		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

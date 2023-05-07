@@ -42,10 +42,24 @@ APFGameModeBase::APFGameModeBase()
 
 	// 배경음
 	static ConstructorHelpers::FObjectFinder<USoundWave>
-		MainMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Magical_Fantasy.Magical_Fantasy'"));
-
+		MainMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Enchanted_Forest.Enchanted_Forest'"));
 	if (MainMusicAsset.Succeeded())
-		mSoundWave = MainMusicAsset.Object;
+		mMainMapSoundWave = MainMusicAsset.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundWave>
+		FireMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Harp_of_Chronos.Harp_of_Chronos'"));
+	if (FireMusicAsset.Succeeded())
+		mFireMapSoundWave = FireMusicAsset.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundWave>
+		IceMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Fantasy_Adventure.Fantasy_Adventure'"));
+	if (IceMusicAsset.Succeeded())
+		mIceMapSoundWave = IceMusicAsset.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundWave>
+		BossMusicAsset(TEXT("SoundWave'/Game/FantasyOrchestral/audio/Fantasy_Adventure.Fantasy_Adventure'"));
+	if (BossMusicAsset.Succeeded())
+		mBossMapSoundWave = BossMusicAsset.Object;
 
 	mAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 	mAudio->bAutoActivate = false;
@@ -64,13 +78,21 @@ void APFGameModeBase::BeginPlay()
 		if (IsValid(mMainHUD))
 		{
 			mMainHUD->AddToViewport();
-
-			//mMainHUD->SetHP(0.33f);
 		}
 	}
 
+	FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+
+	if (LevelName == TEXT("IceMap"))
+		mAudio->SetSound(mIceMapSoundWave);
+	else if (LevelName == TEXT("FireMap"))
+		mAudio->SetSound(mFireMapSoundWave);
+	else if (LevelName == TEXT("BossMap"))
+		mAudio->SetSound(mBossMapSoundWave);
+	else
+		mAudio->SetSound(mMainMapSoundWave);
+
 	// 배경음 재생
-	mAudio->SetSound(mSoundWave);
 	//mAudio->Play();
 }
 
@@ -139,13 +161,18 @@ void APFGameModeBase::SaveGame()
 		*Writer << mSaveGame->mCameraZoomMin;
 		*Writer << mSaveGame->mCameraZoomMax;
 
-		*Writer << mSaveGame->mEquipedItem.Weapon;
-		*Writer << mSaveGame->mEquipedItem.Armor;
-		*Writer << mSaveGame->mEquipedItem.Accesary;
-
 		*Writer << mSaveGame->mHPRatio;
 		*Writer << mSaveGame->mMPRatio;
 		*Writer << mSaveGame->mExpRatio;
+
+		*Writer << mSaveGame->mHPPotionCount;
+		*Writer << mSaveGame->mMPPotionCount;
+		*Writer << mSaveGame->mAttackPotionCount;
+		*Writer << mSaveGame->mArmorPotionCount;
+
+		*Writer << mSaveGame->mEquipedWeaponIndex;
+		*Writer << mSaveGame->mEquipedArmorIndex;
+		*Writer << mSaveGame->mEquipedAccesaryIndex;
 
 		Writer->Close();
 
@@ -156,24 +183,26 @@ void APFGameModeBase::SaveGame()
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
 	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
-
 	TArray<FSaveItemInfo> SaveItemArray;
 
-	int32 Count = TileView->GetNumItems();
-
-	for (int32 i = 0; i < Count; ++i)
+	if (IsValid(TileView))
 	{
-		FSaveItemInfo SaveItem;
+		int32 Count = TileView->GetNumItems();
 
-		UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
-		FItemDataInfo* ItemInfo = IndexItem->GetItemInfo();
+		for (int32 i = 0; i < Count; ++i)
+		{
+			FSaveItemInfo SaveItem;
 
-		SaveItem.ID = ItemInfo->ID;
-		SaveItem.ItemCount = ItemInfo->ItemCount;
+			UItemDataBase* IndexItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
+			FItemDataInfo* ItemInfo = IndexItem->GetItemInfo();
 
-		SaveItemArray.Add(SaveItem);
+			SaveItem.ID = ItemInfo->ID;
+			SaveItem.ItemCount = ItemInfo->ItemCount;
+
+			SaveItemArray.Add(SaveItem);
+		}
+
+		UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
+		GameInst->SetSaveInven(SaveItemArray);
 	}
-
-	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
-	GameInst->SetSaveInven(SaveItemArray);
 }

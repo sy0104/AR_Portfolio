@@ -45,9 +45,9 @@ public:
 		mSaveInven = Inven;
 	}
 
+public:
 	TArray<FSaveItemInfo> GetSaveInven()
 	{
 		return mSaveInven;
 	}
-
 };

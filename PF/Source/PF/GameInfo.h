@@ -511,6 +511,8 @@ enum class EAccesaryType : uint8
 UENUM(BlueprintType)
 enum class EItemID : uint8
 {
+	NONE,
+
 	PT_HP_Potion,
 	PT_MP_Potion, 
 	PT_Attack_Potion,

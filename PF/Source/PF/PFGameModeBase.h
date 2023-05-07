@@ -33,7 +33,16 @@ protected:
 	UAudioComponent* mAudio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	USoundWave*		mSoundWave;
+	USoundWave*		mMainMapSoundWave;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	USoundWave*		mIceMapSoundWave;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	USoundWave*		mFireMapSoundWave;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	USoundWave*		mBossMapSoundWave;
 
 private:
 	TSubclassOf<UUserWidget>	mMainHUDClass;
