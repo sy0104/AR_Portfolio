@@ -62,7 +62,6 @@ void AIceMinion::Attack()
 			ParticleLoc, Dir.Rotation(), SpawnParam);
 
 		Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonMinions/FX/Particles/Minions/Shared/P_Minion_Melee_Impact.P_Minion_Melee_Impact'"));
-		//Particle->SetSound(TEXT(""));
 
 		Target->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 	}

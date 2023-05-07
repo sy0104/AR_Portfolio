@@ -31,8 +31,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	// Target 있으면 Attack, 없으면 Idle
 	UMonsterAnimInstance* Anim = Monster->GetMonsterAnimInst();
-	AActor* Target = Cast<AActor>(
-		Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	AActor* Target = Cast<AActor>(Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	// Target X
 	if (!IsValid(Target))

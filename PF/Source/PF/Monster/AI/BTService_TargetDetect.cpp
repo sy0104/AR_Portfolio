@@ -12,8 +12,7 @@ UBTService_TargetDetect::UBTService_TargetDetect()
 	RandomDeviation = 0.1f;
 }
 
-void UBTService_TargetDetect::TickNode(UBehaviorTreeComponent& OwnerComp, 
-	uint8* NodeMemory, float DeltaSeconds)
+void UBTService_TargetDetect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
@@ -31,7 +30,6 @@ void UBTService_TargetDetect::TickNode(UBehaviorTreeComponent& OwnerComp,
 
 	const FMonsterInfo& Info = Monster->GetMonsterInfo();
 
-	// Ãæµ¹
 	FCollisionQueryParams param(NAME_None, false, Monster);
 	TArray<FOverlapResult> ResultArray;
 

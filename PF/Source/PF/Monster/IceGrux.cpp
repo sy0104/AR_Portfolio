@@ -74,48 +74,25 @@ void AIceGrux::Attack()
 			for (int32 i = 0; i < Count; ++i)
 			{
 				FActorSpawnParameters	SpawnParam;
-				SpawnParam.SpawnCollisionHandlingOverride =
-					ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 
 				AParticleCascade* Particle =
 					GetWorld()->SpawnActor<AParticleCascade>(
-						CollisionResult[i].ImpactPoint,
-						CollisionResult[i].ImpactNormal.Rotation(),
-						SpawnParam);
+						CollisionResult[i].ImpactPoint, CollisionResult[i].ImpactNormal.Rotation(), SpawnParam);
 
 				Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonGrux/FX/Particles/Abilities/Primary/FX/P_Grux_Melee_SucessfulImpact.P_Grux_Melee_SucessfulImpact'"));
 
-				CollisionResult[i].GetActor()->TakeDamage(
-					(float)mMonsterInfo.AttackPoint,
-					FDamageEvent(), GetController(), this);
+				CollisionResult[i].GetActor()->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 			}
 		}
-
-		//// Particle
-		//FActorSpawnParameters SpawnParam;
-		//SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		//FVector Dir = GetActorLocation() - Target->GetActorLocation();
-		//Dir.Normalize();
-
-		//FVector ParticleLoc = Target->GetActorLocation() + Dir * 50.f;
-
-		//AParticleCascade* Particle = GetWorld()->SpawnActor<AParticleCascade>(
-		//	ParticleLoc, Dir.Rotation(), SpawnParam);
-
-		//Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonGrux/FX/Particles/Abilities/Primary/FX/P_Grux_Melee_SucessfulImpact.P_Grux_Melee_SucessfulImpact'"));
-		////Particle->SetSound(TEXT(""));
-
-		//Target->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 	}
 }
 
 void AIceGrux::Skill1()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
-	ACharacter* Target = Cast<ACharacter>(
-		MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	int32 SkillNum = (int32)EIceGruxSkill::Skill1;
 	mMonsterInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
@@ -128,8 +105,7 @@ void AIceGrux::Skill1()
 	// Skill
 	ASkillProjectile* Skill =
 		GetWorld()->SpawnActor<ASkillProjectile>(
-			GetActorLocation() + GetActorForwardVector() * 100.f, 
-			GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
 
 	Skill->SetNiagara(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Environment/NS_Environment_Lightning_2.NS_Environment_Lightning_2'"));
 	Skill->SetBoxExtent(FVector(50.f, 100.f, 50.f));
@@ -140,8 +116,7 @@ void AIceGrux::Skill1()
 	// Effect
 	AParticleNiagara* Particle =
 		GetWorld()->SpawnActor<AParticleNiagara>(
-			GetActorLocation() + GetActorForwardVector() * 100.f, 
-			GetActorRotation(), SpawnParam);
+			GetActorLocation() + GetActorForwardVector() * 100.f, GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("NiagaraSystem'/Game/Sci-Fi_Starter_VFX_Pack_Niagara/Niagara/Explosion/NS_Explosion_Grenade_2.NS_Explosion_Grenade_2'"));
 }

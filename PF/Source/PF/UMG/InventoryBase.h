@@ -10,8 +10,6 @@
 #include "Blueprint/UserWidget.h"
 #include "InventoryBase.generated.h"
 
-
-
 UCLASS()
 class PF_API UInventoryBase : public UUserWidget
 {

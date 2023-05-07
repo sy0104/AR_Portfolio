@@ -95,17 +95,6 @@ void AFireGrux::Attack()
 	}
 }
 
-//
-//#if ENABLE_DRAW_DEBUG
-//		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-//
-//		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-//			mMonsterInfo.AttackDistance / 2.f,
-//			50.f,
-//			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-//			DrawColor, false, 0.5f);
-//#endif
-
 void AFireGrux::Skill1()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());

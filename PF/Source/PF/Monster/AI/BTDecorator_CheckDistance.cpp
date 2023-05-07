@@ -9,8 +9,7 @@ UBTDecorator_CheckDistance::UBTDecorator_CheckDistance()
 {
 }
 
-bool UBTDecorator_CheckDistance::CalculateRawConditionValue(
-	UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTDecorator_CheckDistance::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 

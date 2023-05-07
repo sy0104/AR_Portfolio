@@ -32,7 +32,9 @@ void UContinueBase::OnContinueButtonClicked()
 
 	// 플레이어 리스폰
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	PlayerCharacter->Respawn();
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->Respawn();
 }
 
 void UContinueBase::OnMainMapButtonClicked()

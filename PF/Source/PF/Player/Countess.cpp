@@ -28,7 +28,6 @@ ACountess::ACountess()
 	if (AnimClass.Succeeded())
 		GetMesh()->SetAnimInstanceClass(AnimClass.Class);
 
-
 	mReturnEnable = false;
 	mReturnTime = 2.f;
 	mCurTime = 0.f;
@@ -52,7 +51,6 @@ void ACountess::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//CheckCameraZoom();
 	CheckReturn(DeltaTime);
 }
 
@@ -69,7 +67,6 @@ void ACountess::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// Ãà ¸ÅÇÎ
 	PlayerInputComponent->BindAxis<ACountess>(TEXT("SkillETarget"), this, &ACountess::SkillETargeting);
-
 }
 
 void ACountess::InitUI()
@@ -118,8 +115,7 @@ void ACountess::NormalAttackCheck()
 
 			ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Primary/FX/p_CountessImpact.p_CountessImpact'"));
 
-			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint,
-				FDamageEvent(), GetController(), this);
+			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint, FDamageEvent(), GetController(), this);
 		}
 	}
 }
@@ -156,14 +152,12 @@ void ACountess::SkillQ()
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleCascade* FlashParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	FlashParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/p_Countess_BlinkStrikeFlash.p_Countess_BlinkStrikeFlash'"));
 
 	AParticleCascade* TeleportParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	TeleportParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_TeleportBegin.P_Countess_TeleportBegin'"));
 
@@ -213,8 +207,8 @@ void ACountess::SkillQ()
 					DamageRatio += mSkillDataArray[SkillNum].SkillOptionArray[j].Option;
 			}
 
-			CollisionResult[i].GetActor()->TakeDamage((float)mPlayerInfo.AttackPoint * DamageRatio,
-				FDamageEvent(), GetController(), this);
+			CollisionResult[i].GetActor()->TakeDamage(
+				(float)mPlayerInfo.AttackPoint * DamageRatio, FDamageEvent(), GetController(), this);
 		}
 	}
 }
@@ -291,16 +285,6 @@ void ACountess::SkillE()
 		}
 	}
 
-
-	//ASkillProjectile* Skill =
-	//	GetWorld()->SpawnActor<ASkillProjectile>(
-	//		GetActorLocation() + GetActorForwardVector() * 50.f, Rotation, SpawnParam);
-
-	//Skill->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/RollingDark/FX/p_RollingDark_ImpactFX.p_RollingDark_ImpactFX'"));
-	//Skill->SetCollisionProfile(TEXT("PlayerAttack"));
-	//Skill->SetLifeSpan(4.f);
-	//Skill->GetProjectile()->InitialSpeed = 4000.f;
-
 	PlaySkillCameraShake();
 }
 
@@ -315,17 +299,14 @@ void ACountess::SkillR()
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleCascade* SlashParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	SlashParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUlt_SlashFX.p_CountessUlt_SlashFX'"));
 
 	AParticleCascade* Particle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUlt_CastFX.p_CountessUlt_CastFX'"));
-
 
 	// Skill
 	int32 SkillNum = (int32)ECountessSkillType::Ultimate;
@@ -461,8 +442,6 @@ void ACountess::SkillQKey()
 
 	else
 	{
-		//SetActorLocation(mReturnPos);
-
 		mReturnEnable = false;
 		mCurTime = 0.f;
 
@@ -472,15 +451,13 @@ void ACountess::SkillQKey()
 		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		AParticleCascade* TeleportParticle =
-			GetWorld()->SpawnActor<AParticleCascade>(
-				mReturnLocation, GetActorRotation(), SpawnParam);
+			GetWorld()->SpawnActor<AParticleCascade>(mReturnLocation, GetActorRotation(), SpawnParam);
 
 		TeleportParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_TeleportBegin.P_Countess_TeleportBegin'"));
 	
 
 		AParticleCascade* TeleportArriveParticle =
-			GetWorld()->SpawnActor<AParticleCascade>(
-				mReturnLocation, GetActorRotation(), SpawnParam);
+			GetWorld()->SpawnActor<AParticleCascade>(mReturnLocation, GetActorRotation(), SpawnParam);
 
 		TeleportArriveParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_TeleportArrive.P_Countess_TeleportArrive'"));
 	}
@@ -492,7 +469,6 @@ void ACountess::SkillEKey()
 		return;
 
 	mCountessSkillType = ECountessSkillType::RollingDark;
-
 }
 
 void ACountess::SkillRKey()
@@ -510,7 +486,6 @@ void ACountess::SkillRMKey()
 		return;
 
 	mCountessSkillType = ECountessSkillType::BladeSiphon;
-
 }
 
 void ACountess::SkillETargeting(float Scale)
@@ -544,8 +519,6 @@ void ACountess::CheckCameraZoom()
 	else if (!mTargeting && mSpringArm->TargetArmLength > 500.f)
 	{
 		mSpringArm->TargetArmLength -= 10.f;
-
-		//PrintViewport(1.f, FColor::Red, TEXT("Targeting End"));
 	}
 }
 
@@ -572,8 +545,7 @@ void ACountess::SkillQStart()
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleCascade* Particle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BlinkStrike/FX/P_Countess_TeleportBegin.P_Countess_TeleportBegin'"));
 	
@@ -594,14 +566,12 @@ void ACountess::SkillRCast()
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleCascade* Particle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUlt_ApplicationFX.p_CountessUlt_ApplicationFX'"));
 
 	AParticleCascade* GroundParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	GroundParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/Ultimate/FX/p_CountessUlt_GroundImpactFX.p_CountessUlt_GroundImpactFX'"));
 
@@ -614,14 +584,12 @@ void ACountess::SkillRMCast()
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleCascade* TrailParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	TrailParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BladeSiphon/FX/P_Countess_BladeSiphon_Trails.P_Countess_BladeSiphon_Trails'"));
 
 	AParticleCascade* RingParticle =
-		GetWorld()->SpawnActor<AParticleCascade>(
-			GetActorLocation(), GetActorRotation(), SpawnParam);
+		GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 	RingParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonCountess/FX/Particles/Abilities/BladeSiphon/FX/P_Countess_BladeSiphon_RingFX.P_Countess_BladeSiphon_RingFX'"));
 
@@ -647,11 +615,4 @@ void ACountess::StartSkill()
 void ACountess::SavePlayer()
 {
 	Super::SavePlayer();
-}
-
-void ACountess::SkillEEnd(ASkillActor* SkillActor, const FHitResult& Hit)
-{
-	//Hit.GetActor()->TakeDamage(100.f, FDamageEvent(), GetController(), this);
-
-	//SkillActor->Destroy();
 }

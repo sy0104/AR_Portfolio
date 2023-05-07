@@ -74,8 +74,4 @@ private:
 	bool		mReturnEnable;
 	float		mReturnTime;
 	float		mCurTime;
-
-public:
-	UFUNCTION()
-	void SkillEEnd(class ASkillActor* SkillActor, const FHitResult& Hit);
 };

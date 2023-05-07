@@ -82,8 +82,7 @@ void ASevarog::Attack()
 			for (int32 i = 0; i < Count; ++i)
 			{
 				FActorSpawnParameters	SpawnParam;
-				SpawnParam.SpawnCollisionHandlingOverride =
-					ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 
 				AParticleCascade* Particle =
@@ -95,24 +94,11 @@ void ASevarog::Attack()
 				Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonSevarog/FX/Particles/Abilities/Primary/FX/P_Sevarog_Melee_SucessfulImpact.P_Sevarog_Melee_SucessfulImpact'"));
 				//Particle->SetSound(TEXT("SoundWave'/Game/Sound/Fire1.Fire1'"));
 
-				CollisionResult[i].GetActor()->TakeDamage(
-					(float)mMonsterInfo.AttackPoint,
-					FDamageEvent(), GetController(), this);
+				CollisionResult[i].GetActor()->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 			}
 		}
 	}
 }
-
-
-//#if ENABLE_DRAW_DEBUG
-//		FColor	DrawColor = CollisionEnable ? FColor::Red : FColor::Green;
-//
-//		DrawDebugCapsule(GetWorld(), (StartLocation + EndLocation) / 2.f,
-//			mMonsterInfo.AttackDistance / 2.f,
-//			25.f,
-//			FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(),
-//			DrawColor, false, 0.5f);
-//#endif
 
 void ASevarog::Skill1()
 {
@@ -161,7 +147,7 @@ void ASevarog::Skill2()
 	mAttackDelayTime = 1.f;
 	mMonsterInfo.AttackDistance = 250.f;
 
-	FActorSpawnParameters	SpawnParam;
+	FActorSpawnParameters SpawnParam;
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	if (IsValid(Target))
@@ -210,9 +196,7 @@ void ASevarog::Skill2()
 
 				TargetParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonSevarog/FX/Particles/Abilities/SoulSiphon/FX/P_SoulSwirlsBody.P_SoulSwirlsBody'"));
 
-				CollisionResult[i].GetActor()->TakeDamage(
-					(float)mMonsterInfo.AttackPoint,
-					FDamageEvent(), GetController(), this);
+				CollisionResult[i].GetActor()->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 			}
 		}
 	}
@@ -228,7 +212,7 @@ void ASevarog::Skill3()
 	mAttackDelayTime = 1.f;
 	mMonsterInfo.AttackDistance = 400.f;
 
-	FActorSpawnParameters	SpawnParam;
+	FActorSpawnParameters SpawnParam;
 	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	if (IsValid(Target))
@@ -277,9 +261,7 @@ void ASevarog::Skill3()
 
 				ImpactParticle->SetParticle(TEXT("ParticleSystem'/Game/ParagonSevarog/FX/Particles/Abilities/Ultimate/FX/P_UltActivate.P_UltActivate'"));
 
-				CollisionResult[i].GetActor()->TakeDamage(
-					(float)mMonsterInfo.AttackPoint,
-					FDamageEvent(), GetController(), this);
+				CollisionResult[i].GetActor()->TakeDamage((float)mMonsterInfo.AttackPoint, FDamageEvent(), GetController(), this);
 			}
 		}
 	}
@@ -288,8 +270,7 @@ void ASevarog::Skill3()
 void ASevarog::CastSkill1()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
-	ACharacter* Target = Cast<ACharacter>(
-		MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	if (IsValid(Target))
 	{
@@ -298,8 +279,7 @@ void ASevarog::CastSkill1()
 
 		// Effect
 		FActorSpawnParameters	SpawnParam;
-		SpawnParam.SpawnCollisionHandlingOverride =
-			ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		AParticleCascade* Particle =
 			GetWorld()->SpawnActor<AParticleCascade>(
@@ -322,17 +302,13 @@ void ASevarog::CastSkill2()
 	if (IsValid(Target))
 	{
 		// Effect
-		FActorSpawnParameters	SpawnParam;
-
-		SpawnParam.SpawnCollisionHandlingOverride =
-			ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FActorSpawnParameters SpawnParam;
+		SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		AParticleCascade* Particle =
-			GetWorld()->SpawnActor<AParticleCascade>(
-				GetActorLocation(), GetActorRotation(), SpawnParam);
+			GetWorld()->SpawnActor<AParticleCascade>(GetActorLocation(), GetActorRotation(), SpawnParam);
 
 		Particle->SetParticle(TEXT("ParticleSystem'/Game/ParagonSevarog/FX/Particles/Abilities/SoulSiphon/FX/P_GhostHand.P_GhostHand'"));
-		//Particle->SetSound(TEXT("SoundWave'/Game/Sound/Fire1.Fire1'"));
 	}
 }
 

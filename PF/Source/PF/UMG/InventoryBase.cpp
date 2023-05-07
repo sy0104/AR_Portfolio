@@ -21,7 +21,6 @@ void UInventoryBase::NativeConstruct()
 	mDescFrameImage = Cast<UImage>(GetWidgetFromName(FName(TEXT("DescBackFrame"))));
 	mItemNameText = Cast<UTextBlock>(GetWidgetFromName(FName(TEXT("ItemNameText"))));
 	mItemDescText = Cast<UTextBlock>(GetWidgetFromName(FName(TEXT("ItemDescText"))));
-
 }
 
 void UInventoryBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -54,17 +53,19 @@ void UInventoryBase::ClickItem(UObject* Item)
 	case EItemType::Equip_Weapon:
 		if (PlayerCharacter->IsEquipedWeapon())
 		{
-			UInventoryItemBase* OldItem = Cast<UInventoryItemBase>(
-				TileView->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedWeapon()));
+			UInventoryItemBase* EquipedWeapon = 
+				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedWeapon()));
 
-			if (IsValid(OldItem))
+			if (IsValid(EquipedWeapon))
 			{
-				OldItem->SetUnEquip();	// (인벤토리 UI) 착용상태 해제
+				EquipedWeapon->SetUnEquip();	// (인벤토리 UI) 착용상태 해제
 				PlayerCharacter->UnEquipItem(PlayerCharacter->GetEquipedWeapon());
 			}
 		}
 
-		NewItem->SetEquip();
+		if (IsValid(NewItem))
+			NewItem->SetEquip();
+
 		PlayerCharacter->EquipItem(Item);
 		PlayerCharacter->SetEquipedWeaponIndex(TileView->GetIndexForItem(Item));
 		break;
@@ -72,15 +73,16 @@ void UInventoryBase::ClickItem(UObject* Item)
 	case EItemType::Equip_Armor:
 		if (PlayerCharacter->IsEquipedArmor())
 		{
-			UInventoryItemBase* OldItem =
-				Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->
-					GetTileView()->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedArmor()));
+			UInventoryItemBase* EquipedArmor =
+				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedArmor()));
 
-			OldItem->SetUnEquip();
+			EquipedArmor->SetUnEquip();
 			PlayerCharacter->UnEquipItem(PlayerCharacter->GetEquipedArmor());
 		}
 
-		NewItem->SetEquip();
+		if (IsValid(NewItem))
+			NewItem->SetEquip();
+
 		PlayerCharacter->EquipItem(Item);
 		PlayerCharacter->SetEquipedArmorIndex(TileView->GetIndexForItem(Item));
 		break;
@@ -88,15 +90,16 @@ void UInventoryBase::ClickItem(UObject* Item)
 	case EItemType::Equip_Accesary:
 		if (PlayerCharacter->IsEquipedAccesary())
 		{
-			UInventoryItemBase* OldItem =
-				Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->
-					GetTileView()->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedAccesary()));
+			UInventoryItemBase* EquipedAccesary =
+				Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(PlayerCharacter->GetEquipedAccesary()));
 
-			OldItem->SetUnEquip();
+			EquipedAccesary->SetUnEquip();
 			PlayerCharacter->UnEquipItem(PlayerCharacter->GetEquipedAccesary());
 		}
 
-		NewItem->SetEquip();
+		if (IsValid(NewItem))
+			NewItem->SetEquip();
+
 		PlayerCharacter->EquipItem(Item);
 		PlayerCharacter->SetEquipedArmorIndex(TileView->GetIndexForItem(Item));
 		break;
@@ -155,18 +158,23 @@ void UInventoryBase::UnEquipItem(UObject* Item)
 {
 	PrintViewport(1.f, FColor::Red, TEXT("DoubleClick"));
 
-	FItemDataInfo* ItemInfo = Cast<UItemDataBase>(Item)->GetItemInfo();
-	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
-	UInventoryItemBase* ItemBase =
-		Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetEntryWidgetFromItem(Item));
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
 
-	ItemBase->SetUnEquip();
-	PlayerCharacter->UnEquipItem(Item);
-	
+	if (IsValid(TileView))
+	{
+		UInventoryItemBase* ItemBase =
+			Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetEntryWidgetFromItem(Item));
+
+		ItemBase->SetUnEquip();
+
+		APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+		if (IsValid(PlayerCharacter))
+			PlayerCharacter->UnEquipItem(Item);
+	}
 }
 
 void UInventoryBase::ShowItemDesc(UObject* Item, bool IsHovered, FVector2D Mouse)
@@ -217,35 +225,37 @@ void UInventoryBase::ShowItemDesc(UObject* Item, bool IsHovered, FVector2D Mouse
 
 void UInventoryBase::UpdatePotionCount(EItemID ID)
 {
-	// 코드 안전하게 바꿔야됨
 	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
 
-	TArray<UObject*> TileViewItems = MainHUD->GetInventoryWidget()->GetTileView()->GetListItems();
+	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
 
-	int32 Count = TileViewItems.Num();
-	int32 ItemCount;
-
-	for (int32 i = 0; i < Count; ++i)
+	if (IsValid(TileView))
 	{
-		if (Cast<UItemDataBase>(TileViewItems[i])->GetItemInfo()->ID == ID)
+		TArray<UObject*> TileViewItems = TileView->GetListItems();
+
+		int32 Count = TileViewItems.Num();
+		int32 ItemCount;
+
+		for (int32 i = 0; i < Count; ++i)
 		{
-			ItemCount = Cast<UItemDataBase>(TileViewItems[i])->GetItemInfo()->ItemCount;
-
-			if (ItemCount <= 0)
+			if (Cast<UItemDataBase>(TileViewItems[i])->GetItemInfo()->ID == ID)
 			{
-				mTileView->RemoveItem(TileViewItems[i]);
-				break;
-			}
+				ItemCount = Cast<UItemDataBase>(TileViewItems[i])->GetItemInfo()->ItemCount;
 
-			else
-			{
-				UItemDataBase* Item = Cast<UItemDataBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetItemAt(i));
-				UInventoryItemBase* ItemBase =
-					Cast<UInventoryItemBase>(MainHUD->GetInventoryWidget()->GetTileView()->GetEntryWidgetFromItem(Item));
+				if (ItemCount <= 0)
+				{
+					mTileView->RemoveItem(TileViewItems[i]);
+					break;
+				}
 
-				ItemBase->SetItemCountText(ItemCount);
-				break;
+				else
+				{
+					UInventoryItemBase* ItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(TileViewItems[i]));
+
+					ItemBase->SetItemCountText(ItemCount);
+					break;
+				}
 			}
 		}
 	}

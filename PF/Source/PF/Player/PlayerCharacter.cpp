@@ -265,8 +265,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//PrintViewport(1.f, FColor::Red, FString::Printf(TEXT("AttackPoint : %d"), mPlayerInfo.AttackPoint));
-
 	AttackBuffOn(DeltaTime);
 	ArmorBuffOn(DeltaTime);
 
@@ -505,7 +503,6 @@ void APlayerCharacter::SkillEKey()
 	mMPRatio -= mSkillDataArray[SkillNum].MP * (1.f / (float)mPlayerInfo.MPMax);
 	MainHUD->SetMP(mMPRatio);
 	MainHUD->SetPlayerStatMP(mPlayerInfo.MP);
-
 }
 
 void APlayerCharacter::SkillRKey()
@@ -581,31 +578,6 @@ void APlayerCharacter::JumpKey()
 
 void APlayerCharacter::InventoryOn()
 {
-	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
-
-	UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
-
-	if (IsValid(TileView))
-	{
-		TArray<UObject*> mTileViewItems = TileView->GetListItems();
-		int32 Count = mTileViewItems.Num();
-
-		for (int32 i = 0; i < Count; ++i)
-		{
-			if (i == mEquipedWeaponIndex || i == mEquipedArmorIndex || i == mEquipedAccesaryIndex)
-			{
-				UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
-				//UObject* EquipedItem =TileView->GetItemAt(i);
-				UInventoryItemBase* EquipedItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(EquipedItem));
-
-				if (IsValid(EquipedItemBase))
-				{
-					EquipedItemBase->SetEquip();
-				}
-			}
-		}
-	}
 
 	if (UInventoryManager::GetInst(GetWorld())->IsInventoryOpen())
 		UInventoryManager::GetInst(GetWorld())->ShowInventory(false);
@@ -613,6 +585,10 @@ void APlayerCharacter::InventoryOn()
 	else
 	{
 		// Set Equip
+		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+		UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
 
 		if (IsValid(TileView))
 		{
@@ -623,8 +599,8 @@ void APlayerCharacter::InventoryOn()
 			{
 				if (i == mEquipedWeaponIndex || i == mEquipedArmorIndex || i == mEquipedAccesaryIndex)
 				{
-					UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
-					//UObject* EquipedItem =TileView->GetItemAt(i);
+					//UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
+					UObject* EquipedItem =TileView->GetItemAt(i);
 					UInventoryItemBase* EquipedItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(EquipedItem));
 
 					if (IsValid(EquipedItemBase))
@@ -999,10 +975,6 @@ void APlayerCharacter::SavePlayer()
 	GameMode->GetSaveGame()->mEquipedWeaponIndex = mEquipedWeaponIndex;
 	GameMode->GetSaveGame()->mEquipedArmorIndex = mEquipedArmorIndex;
 	GameMode->GetSaveGame()->mEquipedAccesaryIndex = mEquipedAccesaryIndex;
-
-	//// Equiped Item
-	//UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
-	//GameInst->SetEquipedItem(mEquipedItem);
 }
 
 void APlayerCharacter::Respawn()

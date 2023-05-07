@@ -228,8 +228,6 @@ float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 
 		if (IsValid(AI))
 			AI->BrainComponent->StopLogic(TEXT("Death"));
-		
-		//mSpawnPoint->RemoveMonster(this);
 	}
 
 
@@ -251,10 +249,13 @@ float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 
 		if (mHPRatio > 0.8f)
 			mMonsterPhase = EMonsterPhase::NormalAttack;
+
 		else if (mHPRatio > 0.6f && mHPRatio <= 0.8f)
 			mMonsterPhase = EMonsterPhase::Skill1;
+
 		else if (mHPRatio > 0.4f && mHPRatio <= 0.6f)
 			mMonsterPhase = EMonsterPhase::Skill2;
+
 		else
 			mMonsterPhase = EMonsterPhase::Skill3;
 
@@ -283,7 +284,6 @@ void AMonster::UnPossessed()
 
 void AMonster::Attack()
 {
-
 }
 
 void AMonster::Skill1()
