@@ -6,6 +6,8 @@
 #include "../Monster.h"
 #include "../MonsterAnimInstance.h"
 
+#include "../../Player/PlayerCharacter.h"
+
 UBTTask_Skill1::UBTTask_Skill1()
 {
 	NodeName = TEXT("Skill1");
@@ -103,6 +105,16 @@ void UBTTask_Skill1::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
 		return;
 	}
+
+	if (Cast<APlayerCharacter>(Target)->GetDeath())
+	{
+		Controller->StopMovement();
+		Anim->ChangeAnim(EMonsterAnimType::Idle);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+
+		return;
+	}
+
 
 	// 공격이 끝났는지 판단하고
 	// 공격이 끝난 후 AttackDistance 안에 타겟이 있다면 타겟이 있는 방향으로 회전시켜준다.

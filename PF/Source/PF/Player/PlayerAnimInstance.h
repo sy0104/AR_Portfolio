@@ -159,6 +159,9 @@ public:
 	UFUNCTION()
 	void AnimNotify_DeathEnd();
 
+	UFUNCTION()
+	void AnimNotify_RespawnEnd();
+
 	// Shinbi
 	UFUNCTION()
 	void AnimNotify_DashStart();

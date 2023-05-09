@@ -26,6 +26,7 @@ private:
 	class UPotionBase*			mPotionInfo;
 	class UPlayerStatBase*		mPlayerStat;
 	class UContinueBase*		mContinue;
+	class UGameEndBase*			mGameEnd;
 
 	// PlayerInfoBase
 public:
@@ -70,6 +71,10 @@ public:
 	// Continue
 public:
 	void SetContinueVisible(bool Visible);
+
+	// GameEnd
+public:
+	void SetGameEndVisible(bool Visible);
 
 public:
 	void UpdatePotionCount(EItemID ID);

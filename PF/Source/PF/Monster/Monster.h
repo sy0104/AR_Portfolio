@@ -139,6 +139,7 @@ protected:
 
 	int32	mUseSkillIndex;
 	bool	mUseSkill;
+	bool	mGameEnd;
 	
 public:
 	const FMonsterInfo& GetMonsterInfo() const

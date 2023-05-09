@@ -151,10 +151,12 @@ void APlayerCharacter::BeginPlay()
 	// 나중에 직업 추가되면 데이터테이블로 제작
 	else
 	{
-		mPlayerInfo.Name = TEXT("Shinbi");
-		mPlayerInfo.AttackPoint = 200;	// 100
+		mPlayerInfo.Name = TEXT("Countess");
+		mPlayerInfo.AttackPoint = 1000;
+		//mPlayerInfo.AttackPoint = 100;
 		mPlayerInfo.ArmorPoint = 50;
-		mPlayerInfo.HP = 1000;
+		//mPlayerInfo.HP = 1000;
+		mPlayerInfo.HP = 100;
 		mPlayerInfo.HPMax = 1000;
 		mPlayerInfo.MP = 100;
 		mPlayerInfo.MPMax = 100;
@@ -742,6 +744,83 @@ void APlayerCharacter::LevelUp()
 	mExpRatio = 0.f;
 }
 
+void APlayerCharacter::RestartGame()
+{
+	mPlayerInfo.Name = TEXT("Countess");
+	mPlayerInfo.AttackPoint = 100;
+	mPlayerInfo.ArmorPoint = 50;
+	mPlayerInfo.HP = 1000;
+	mPlayerInfo.HPMax = 1000;
+	mPlayerInfo.MP = 100;
+	mPlayerInfo.MPMax = 100;
+	mPlayerInfo.Level = 1;
+	mPlayerInfo.Exp = 0;
+	mPlayerInfo.ExpMax = 1000;
+	mPlayerInfo.Gold = 1000;
+	mPlayerInfo.MoveSpeed = 2000.f;
+	mPlayerInfo.AttackDistance = 200.f;
+
+	mEquipedWeaponIndex = -1;
+	mEquipedArmorIndex = -1;
+	mEquipedAccesaryIndex = -1;
+
+	mHPRatio = 1.f;
+	mMPRatio = 1.f;
+	mExpRatio = 0.f;
+
+	mAttackBuff.bBuffOn = false;
+	mAttackBuff.CurBuffTime = 0.f;
+
+	mArmorBuff.bBuffOn = false;
+	mArmorBuff.CurBuffTime = 0.f;
+
+	APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+	if (mEquipedItem.Weapon)
+	{
+		FItemDataInfo* ItemInfo = Cast<UItemDataBase>(mEquipedItem.Weapon)->GetItemInfo();
+
+		mPlayerInfo.AttackPoint -= ItemInfo->AttackBuff;
+		MainHUD->SetUnEquipWeapon(ItemInfo->AttackBuff);
+		mEquipedItem.Weapon = nullptr;
+	}
+
+	if (mEquipedItem.Armor)
+	{
+		FItemDataInfo* ItemInfo = Cast<UItemDataBase>(mEquipedItem.Armor)->GetItemInfo();
+
+		mPlayerInfo.ArmorPoint -= ItemInfo->ArmorBuff;
+		MainHUD->SetUnEquipArmor(ItemInfo->ArmorBuff);
+		mEquipedItem.Armor = nullptr;
+	}
+
+	if (mEquipedItem.Accesary)
+	{
+		FItemDataInfo* ItemInfo = Cast<UItemDataBase>(mEquipedItem.Accesary)->GetItemInfo();
+
+		mPlayerInfo.AttackPoint -= ItemInfo->AttackBuff;
+		mPlayerInfo.ArmorPoint -= ItemInfo->ArmorBuff;
+		MainHUD->SetUnEquipAccesary(ItemInfo->AttackBuff, ItemInfo->ArmorBuff);
+		mEquipedItem.Accesary = nullptr;
+	}
+
+
+	// 인벤 초기화
+	if (IsValid(MainHUD))
+	{
+		UTileView* TileView = MainHUD->GetInventoryWidget()->GetTileView();
+
+		if (IsValid(TileView))
+		{
+			TileView->ClearListItems();
+		}
+	}
+
+	// UI
+	UpdatePlayerInfoUI();
+}
+
 void APlayerCharacter::LevelUpCheat()
 {
 	LevelUp();
@@ -980,6 +1059,8 @@ void APlayerCharacter::SavePlayer()
 void APlayerCharacter::Respawn()
 {
 	mDeath = false;
+	mUseSkill = false;
+	mTargeting = false;
 
 	mAnimInst->SetPlayerAnimType(EPlayerAnimType::Ground);
 
@@ -996,6 +1077,11 @@ void APlayerCharacter::Respawn()
 
 void APlayerCharacter::StartSkill()
 {
+}
+
+void APlayerCharacter::RespawnStart()
+{
+	mAnimInst->SetPlayerAnimType(EPlayerAnimType::Respawn);
 }
 
 void APlayerCharacter::PlaySkillCameraShake()

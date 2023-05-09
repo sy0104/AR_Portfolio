@@ -7,6 +7,7 @@
 #include "PotionBase.h"
 #include "PlayerStatBase.h"
 #include "ContinueBase.h"
+#include "GameEndBase.h"
 
 void UMainHUDBase::NativeConstruct()
 {
@@ -17,6 +18,7 @@ void UMainHUDBase::NativeConstruct()
 	mPotionInfo = Cast<UPotionBase>(GetWidgetFromName(FName(TEXT("PotionInfo"))));
 	mPlayerStat = Cast<UPlayerStatBase>(GetWidgetFromName(FName(TEXT("PlayerStat"))));
 	mContinue = Cast<UContinueBase>(GetWidgetFromName(FName(TEXT("Continue"))));
+	mGameEnd = Cast<UGameEndBase>(GetWidgetFromName(FName(TEXT("GameEnd"))));
 }
 
 void UMainHUDBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -167,6 +169,15 @@ void UMainHUDBase::SetContinueVisible(bool Visible)
 
 	else
 		mContinue->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UMainHUDBase::SetGameEndVisible(bool Visible)
+{
+	if (Visible)
+		mGameEnd->SetVisibility(ESlateVisibility::Visible);
+
+	else
+		mGameEnd->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainHUDBase::UpdatePotionCount(EItemID ID)

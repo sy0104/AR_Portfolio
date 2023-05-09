@@ -105,8 +105,6 @@ void UPlayerAnimInstance::Ultimate()
 void UPlayerAnimInstance::Death()
 {
 	mAnimType = EPlayerAnimType::Death;
-
-
 }
 
 void UPlayerAnimInstance::SkillETarget()
@@ -257,7 +255,7 @@ void UPlayerAnimInstance::AnimNotify_DeathEnd()
 
 	if (IsValid(PlayerCharacter))
 	{
-		PlayerCharacter->SetHidden(true);
+		//PlayerCharacter->SetHidden(true);
 
 		APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		UMainHUDBase* MainHUD = GameMode->GetMainHUD();
@@ -266,11 +264,23 @@ void UPlayerAnimInstance::AnimNotify_DeathEnd()
 	}
 }
 
+void UPlayerAnimInstance::AnimNotify_RespawnEnd()
+{
+	mAnimType = EPlayerAnimType::Ground;
+
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->Respawn();
+}
+
 // Shinbi
 void UPlayerAnimInstance::AnimNotify_DashStart()
 {
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
-	PlayerCharacter->SetDash(true);
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->SetDash(true);
 
 	PrintViewport(1.f, FColor::Red, TEXT("DashStart"));
 }
@@ -278,7 +288,9 @@ void UPlayerAnimInstance::AnimNotify_DashStart()
 void UPlayerAnimInstance::AnimNotify_DashEnd()
 {
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
-	PlayerCharacter->SetDash(false);
+
+	if (IsValid(PlayerCharacter))
+		PlayerCharacter->SetDash(false);
 
 	PrintViewport(1.f, FColor::Red, TEXT("DashEnd"));
 }

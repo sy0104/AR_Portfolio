@@ -6,6 +6,8 @@
 #include "../Monster.h"
 #include "../MonsterAnimInstance.h"
 
+#include "../../Player/PlayerCharacter.h"
+
 UBTTask_Attack::UBTTask_Attack()
 {
 	NodeName = TEXT("Attack");
@@ -94,8 +96,16 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		return;
 	}
 
-
 	if (!IsValid(Target))
+	{
+		Controller->StopMovement();
+		Anim->ChangeAnim(EMonsterAnimType::Idle);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+
+		return;
+	}
+
+	if (Cast<APlayerCharacter>(Target)->GetDeath())
 	{
 		Controller->StopMovement();
 		Anim->ChangeAnim(EMonsterAnimType::Idle);

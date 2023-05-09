@@ -68,6 +68,7 @@ public:
 
 public:
 	void LevelUp();
+	void RestartGame();
 
 	void UsePotion(FItemDataInfo* ItemInfo);
 
@@ -89,6 +90,7 @@ public:
 	virtual void Respawn();
 	virtual void StartSkill();
 
+	void RespawnStart();
 	void PlaySkillCameraShake();
 	void PlayUltimateCameraShake();
 
@@ -152,7 +154,6 @@ protected:
 
 	FEquipedItem		mEquipedItem;
 
-	bool				mFirstOpenInventory;
 	int32				mEquipedWeaponIndex;
 	int32				mEquipedArmorIndex;
 	int32				mEquipedAccesaryIndex;
@@ -225,6 +226,11 @@ public:
 	bool GetUseSkill() const
 	{
 		return mUseSkill;
+	}
+
+	bool GetDeath() const
+	{
+		return mDeath;
 	}
 
 public:

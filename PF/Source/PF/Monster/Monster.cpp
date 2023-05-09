@@ -8,11 +8,13 @@
 #include "MonsterSpawnPoint.h"
 #include "../UMG/MonsterHPBase.h"
 #include "../Player/PlayerCharacter.h"
+#include "../PFGameModeBase.h"
+#include "../UMG/MainHUDBase.h"
 
 // Sets default values
 AMonster::AMonster()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -31,6 +33,7 @@ AMonster::AMonster()
 	mAttackEnd = false;
 	mSkillEnd = false;
 	mUseSkill = false;
+	mGameEnd = false;
 
 	mHPRatio = 1.f;
 
@@ -71,7 +74,7 @@ AMonster::AMonster()
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// 데이터 테이블에서 몬스터 정보 가져와서 세팅
 	UPFGameInstance* GameInst = GetWorld()->GetGameInstance<UPFGameInstance>();
 	const FMonsterTableInfo* Info = GameInst->FindMonsterTable(mMonsterTableRowName);
@@ -180,6 +183,19 @@ void AMonster::Tick(float DeltaTime)
 		if (mDissolveTime >= mDissolveTimeMax)
 		{
 			//mSpawnPoint->RemoveMonster(this);
+
+			FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+
+			if (/*!mGameEnd && */LevelName == TEXT("BossMap"))
+			{
+				APFGameModeBase* GameMode = Cast<APFGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+				UMainHUDBase* MainHUD = GameMode->GetMainHUD();
+
+				MainHUD->SetGameEndVisible(true);
+
+				mGameEnd = true;
+			}
+
 			Destroy();
 		}
 	}

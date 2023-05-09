@@ -4,6 +4,7 @@
 #include "BTDecorator_CheckDistance.h"
 #include "../MonsterAIController.h"
 #include "../Monster.h"
+#include "../../Player/PlayerCharacter.h"
 
 UBTDecorator_CheckDistance::UBTDecorator_CheckDistance()
 {
@@ -29,6 +30,9 @@ bool UBTDecorator_CheckDistance::CalculateRawConditionValue(UBehaviorTreeCompone
 	ACharacter* Target = Cast<ACharacter>(Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 	
 	if (!IsValid(Target))
+		return false;
+
+	if (Cast<APlayerCharacter>(Target)->GetDeath())
 		return false;
 
 	const FMonsterInfo& Info = Monster->GetMonsterInfo();

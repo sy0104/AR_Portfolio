@@ -12,11 +12,9 @@ void UContinueBase::NativeConstruct()
 	mMainMapButton = Cast<UButton>(GetWidgetFromName(FName(TEXT("MainMapButton"))));
 	mExitButton = Cast<UButton>(GetWidgetFromName(FName(TEXT("ExitButton"))));
 
-
 	mContinueButton->OnClicked.AddDynamic(this, &UContinueBase::OnContinueButtonClicked);
 	mMainMapButton->OnClicked.AddDynamic(this, &UContinueBase::OnMainMapButtonClicked);
 	mExitButton->OnClicked.AddDynamic(this, &UContinueBase::OnExitButtonClicked);
-
 }
 
 void UContinueBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -34,7 +32,7 @@ void UContinueBase::OnContinueButtonClicked()
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
 	if (IsValid(PlayerCharacter))
-		PlayerCharacter->Respawn();
+		PlayerCharacter->RespawnStart();
 }
 
 void UContinueBase::OnMainMapButtonClicked()
