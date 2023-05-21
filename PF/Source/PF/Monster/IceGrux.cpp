@@ -124,7 +124,8 @@ void AIceGrux::Skill1()
 void AIceGrux::Skill2()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
-	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	ACharacter* Target = Cast<ACharacter>(
+		MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	int32 SkillNum = (int32)EIceGruxSkill::Skill1;
 	mMonsterInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
@@ -132,7 +133,8 @@ void AIceGrux::Skill2()
 	mAttackDelayTime = 2.f;
 
 	FActorSpawnParameters SpawnParam;
-	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParam.SpawnCollisionHandlingOverride
+		= ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Skill
 	ASkillProjectile* Skill =
@@ -200,7 +202,8 @@ void AIceGrux::Skill2End(ASkillActor* SkillActor, const FHitResult& Hit)
 
 	// Effect
 	FActorSpawnParameters SpawnParam;
-	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParam.SpawnCollisionHandlingOverride 
+		= ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AParticleNiagara* Particle =
 		GetWorld()->SpawnActor<AParticleNiagara>(
@@ -210,7 +213,6 @@ void AIceGrux::Skill2End(ASkillActor* SkillActor, const FHitResult& Hit)
 
 	// Damage
 	int32 SkillNum = (int32)EIceGruxSkill::Skill2;
-
 	int32 Count = mSkillDataArray[SkillNum].SkillOptionArray.Num();
 	float DamageRatio = 0.f;
 

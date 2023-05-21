@@ -93,7 +93,7 @@ void APFGameModeBase::BeginPlay()
 		mAudio->SetSound(mMainMapSoundWave);
 
 	// 배경음 재생
-	//mAudio->Play();
+	mAudio->Play();
 }
 
 void APFGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)

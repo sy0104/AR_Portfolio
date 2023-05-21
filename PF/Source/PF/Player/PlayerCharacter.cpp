@@ -152,11 +152,10 @@ void APlayerCharacter::BeginPlay()
 	else
 	{
 		mPlayerInfo.Name = TEXT("Countess");
-		mPlayerInfo.AttackPoint = 1000;
-		//mPlayerInfo.AttackPoint = 100;
+		mPlayerInfo.AttackPoint = 100;
+		mPlayerInfo.AttackPoint = 100;
 		mPlayerInfo.ArmorPoint = 50;
-		//mPlayerInfo.HP = 1000;
-		mPlayerInfo.HP = 100;
+		mPlayerInfo.HP = 1000;
 		mPlayerInfo.HPMax = 1000;
 		mPlayerInfo.MP = 100;
 		mPlayerInfo.MPMax = 100;
@@ -170,6 +169,12 @@ void APlayerCharacter::BeginPlay()
 		mEquipedWeaponIndex = -1;
 		mEquipedArmorIndex = -1;
 		mEquipedAccesaryIndex = -1;
+
+		// Potion Info UI
+		MainHUD->SetHPPotionCount(0);
+		MainHUD->SetMPPotionCount(0);
+		MainHUD->SetAttackPotionCount(0);
+		MainHUD->SetArmorPotionCount(0);
 	}
 
 	// Inven Load
@@ -602,7 +607,7 @@ void APlayerCharacter::InventoryOn()
 				if (i == mEquipedWeaponIndex || i == mEquipedArmorIndex || i == mEquipedAccesaryIndex)
 				{
 					//UItemDataBase* EquipedItem = Cast<UItemDataBase>(TileView->GetItemAt(i));
-					UObject* EquipedItem =TileView->GetItemAt(i);
+					UObject* EquipedItem = TileView->GetItemAt(i);
 					UInventoryItemBase* EquipedItemBase = Cast<UInventoryItemBase>(TileView->GetEntryWidgetFromItem(EquipedItem));
 
 					if (IsValid(EquipedItemBase))

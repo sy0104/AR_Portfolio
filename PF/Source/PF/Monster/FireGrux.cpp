@@ -98,7 +98,8 @@ void AFireGrux::Attack()
 void AFireGrux::Skill1()
 {
 	AAIController* MonsterController = Cast<AAIController>(GetController());
-	ACharacter* Target = Cast<ACharacter>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+	ACharacter* Target = Cast<ACharacter>(
+		MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 
 	int32 SkillNum = (int32)EFireGruxSkill::Skill1;
 	mMonsterInfo.AttackDistance = mSkillDataArray[SkillNum].Distance;
